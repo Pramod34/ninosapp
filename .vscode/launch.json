@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [{
+            "name": "Launch Typescript debugger",
+            "type": "node",
+            "request": "launch",
+            "protocol": "auto",
+            "preLaunchTask": "build",
+            "program": "${workspaceRoot}\\src\\app.ts",
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "NODE_CONFIG_ENV": "development"
+            },
+            "sourceMaps": true,
+            "outFiles": ["./src"],
+            "smartStep": true
+        },
+        {
+            "name": "Attach",
+            "type": "node",
+            "request": "attach",
+            "port": 9009
+        }
+    ]
+}

@@ -1,0 +1,36 @@
+{
+    "app": {
+        "name": "Ninos App",
+        "sn": "Ninos"
+    },
+    "server": {
+        "port": 5500,
+        "cluster": true
+    },
+    "auth": {
+        "secret": "YuJi4iothas"
+    },
+    "redis": {
+        "host": "pramod-in",
+        "port": "6379",
+        "password": "",
+        "counterDb": 7
+    },
+    "redis-dbs": {
+        "dbPost": "0",
+        "dbReportPost": "1",
+        "dbUser": "2",
+        "dbCourses": "3",
+        "userCourseState": "4"
+    },
+    "mdb-ninosauth": {
+        "database": "ninos-auth",
+        "hosts": [
+            "pramod-in:27017"
+        ],
+        "password": "D0cum3ntum",
+        "replSetName": "",
+        "ssl": "false",
+        "username": "sa"
+    }
+}

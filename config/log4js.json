@@ -1,0 +1,26 @@
+{
+    "appenders": [
+        {
+            "type": "console",
+            "layout": {
+                "type": "pattern",
+                "pattern": "%r%[-%p-%][%h]{%c}- %m"
+            }
+        },
+        {
+            "type": "dateFile",
+            "usefsync": true,
+            "filename": "./logs/sten",
+            "pattern": "-yyyy-MM-dd.log",
+            "alwaysIncludePattern": true,
+            "layout": {
+                "type": "pattern",
+                "pattern": "%r-%p-[%h]{%c}- %m"
+            }
+        }
+    ],
+    "levels": {
+        "[all]": "debug"
+    },
+    "replaceConsole": true
+}
