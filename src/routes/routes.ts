@@ -15,6 +15,8 @@ export class RoutesManager {
 
         var authCheck = policies.IsAuthenticated;
 
+        this.restify.post("/refresh-token", policies.TokenRefresh);
+
         var registerController = new auth.AuthController();
 
         this.restify.post("/register", registerController.RegisterFBOrGoogleAccount);
