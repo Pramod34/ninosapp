@@ -21,6 +21,7 @@ export namespace VM {
         challengeId?: string;
         tags?: string;
         title?: string;
+        isVideo?: boolean;
     }
 
     export interface IUserProfile {

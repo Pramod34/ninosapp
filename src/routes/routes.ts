@@ -20,6 +20,9 @@ export class RoutesManager {
         var registerController = new auth.AuthController();
 
         this.restify.post("/register", registerController.RegisterFBOrGoogleAccount);
+
+        this.restify.get("/check/:userId", registerController.CheckUserByUserId);
+
         this.restify.post("/posts", authCheck, registerController.AddPost);
         this.restify.get("/posts", registerController.GetPosts); // Get User Rating for post
         this.restify.get("/posts/:postId", registerController.GetPost);

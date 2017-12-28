@@ -6,11 +6,11 @@ export declare class UserAuthService extends BaseService {
     private usersLastLogin;
     private postClapsByUser;
     constructor();
-    CheckUser: (userEmail: string) => Promise<any>;
+    CheckUser: (userId: string) => Promise<any>;
     CreateUser: (userInfo: dbTypes.IAuth) => Promise<any>;
     SetUserLastLogin: (userId: string) => Promise<void>;
     AddPost: (userPost: VM.IPost) => Promise<any>;
-    GetPosts: (searchRequest: VM.IPaginate) => Promise<any>;
+    GetPosts: (searchRequest: VM.IPostVM) => Promise<any>;
     GetPost: (postId: string) => Promise<any>;
     UpdatePost: (updatePostDetails: VM.IPost, postId: string) => Promise<any>;
     GetUserProfile: (userId: string) => Promise<VM.IUserProfile>;

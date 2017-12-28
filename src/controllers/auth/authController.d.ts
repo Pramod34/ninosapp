@@ -4,6 +4,7 @@ export declare class AuthController extends BaseController {
     private secret;
     constructor();
     RegisterFBOrGoogleAccount: (req: any, res: any, next: any) => Promise<any>;
+    CheckUserByUserId: (req: any, res: any, next: any) => Promise<any>;
     AddPost: (req: any, res: any, next: any) => Promise<any>;
     GetPosts: (req: any, res: any, next: any) => Promise<any>;
     GetPost: (req: any, res: any, next: any) => Promise<any>;

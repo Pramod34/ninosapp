@@ -16,14 +16,14 @@ export class UserAuthService extends BaseService {
         this.postClapsByUser = "postClapsByUser";
     }
 
-    public CheckUser = async (userEmail: string): Promise<any> => {
+    public CheckUser = async (userId: string): Promise<any> => {
         try {
-            if (this._.isNil(userEmail) || userEmail.trim().length === 0) {
-                throw "No Email Id sent.";
+            if (this._.isNil(userId)) {
+                throw `No userId sent.`;
             }
-            this.log.info(userEmail + " Check User");
+            this.log.info(userId + " Check User");
 
-            var userQuery = await mdbModels.Auth.findOne({ email: userEmail }).exec();
+            var userQuery = await mdbModels.Auth.findOne({ userId: userId }).exec();
 
             return userQuery;
 
@@ -77,11 +77,9 @@ export class UserAuthService extends BaseService {
             var criteria: any = {};
 
             if (!this._.isNil(searchRequest.type)) {
-                if (searchRequest.type === "challenge" && !this._.isNil(searchRequest.challengeId)) {
-                    criteria.challengeId = searchRequest.challengeId;
-                }
+                criteria.type = searchRequest.type
             }
-            var results = await mdbModels.Post.find({})
+            var results = await mdbModels.Post.find(criteria)
                 .skip(searchRequest.from)
                 .limit(searchRequest.size)
                 .sort({ "createdAt": -1 })

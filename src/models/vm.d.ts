@@ -21,6 +21,7 @@ export declare namespace VM {
         challengeId?: string;
         tags?: string;
         title?: string;
+        isVideo?: boolean;
     }
     interface IUserProfile {
         childName: string;
@@ -44,5 +45,9 @@ export declare namespace VM {
     interface IUpdateQuizAnswer {
         evalutionId: string;
         answer: string;
+    }
+    interface IPostVM extends IPaginate {
+        type: string;
+        challengeId?: string;
     }
 }

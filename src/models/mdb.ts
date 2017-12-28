@@ -94,7 +94,7 @@ var postSchema = new mongoose.Schema({
         trim: true
     },
     isChallenge: {
-        type: String,
+        type: Boolean,
         required: false,
         default: false
     },
@@ -127,6 +127,11 @@ var postSchema = new mongoose.Schema({
         type: Number,
         required: false,
         default: 0
+    },
+    isVideo: {
+        type: Boolean,
+        required: false,
+        default: false
     }
 }, { timestamps: {}, versionKey: false })
 

@@ -20,6 +20,7 @@ export interface IPost extends Document {
     title?: string;
     totalClapsCount: number;
     totalCommentCount: number;
+    isVideo: boolean;
 }
 
 export interface IAuth extends Document {
@@ -69,8 +70,8 @@ export interface IEvalution extends Document {
 }
 
 export interface IPostComments extends Document {
-    postId:string;
-    userId:string;
-    userName:string;
-    comment:string;
+    postId: string;
+    userId: string;
+    userName: string;
+    comment: string;
 }

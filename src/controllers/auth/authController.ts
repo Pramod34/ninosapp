@@ -26,7 +26,7 @@ export class AuthController extends BaseController {
             //     return res.send(500, { success: false, message: "Data not encrypted, need encryption to continue processing." });
             // }
 
-            var userObj = await this.authService.CheckUser(user.email);
+            var userObj = await this.authService.CheckUser(user.userId);
 
             // create a token
             var jwtOptions = <jwt.SignOptions>{};
@@ -52,7 +52,7 @@ export class AuthController extends BaseController {
                 var token = jwt.sign(userObj._doc, this.secret, jwtOptions);
                 await this.authService.SetUserLastLogin(userObj.userId);
 
-                return res.json({
+                return res.send({
                     success: true,
                     message: `User - ${req.body.email} logged in.`,
                     token: token,
@@ -116,6 +116,83 @@ export class AuthController extends BaseController {
         }
     };
 
+    public CheckUserByUserId = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var userId = req.params.userId;
+
+            if (this._.isNil(userId)) {
+                throw `No userId sent.`;
+            }
+
+            var result = await this.authService.CheckUser(userId);
+
+            if (!this._.isNil(result)) {
+
+                var jwtOptions = <jwt.SignOptions>{};
+                jwtOptions.expiresIn = "7d";
+                jwtOptions.noTimestamp = false;
+
+                var userInfo = result._doc;
+
+                // DOB: createdUser.DOB,
+                //     email: createdUser.email,
+                //     parentName: createdUser.parentName,
+                //     childName: createdUser.childName,
+                //     userId: createdUser.userId,
+                //     isFirstLogin: createdUser.isFirstLogin,
+
+                delete userInfo.isEnabled;
+
+                if (!this._.isNil(userInfo.school))
+                    delete userInfo.school;
+
+                if (!this._.isNil(userInfo.gender))
+                    delete userInfo.gender;
+
+                if (!this._.isNil(userInfo.city))
+                    delete userInfo.city;
+
+                if (!this._.isNil(userInfo.aboutus))
+                    delete userInfo.aboutus;
+
+                if (!this._.isNil(userInfo.createdAt))
+                    delete userInfo.createdAt;
+
+                if (!this._.isNil(userInfo.updatedAt))
+                    delete userInfo.updatedAt;
+
+
+
+                userInfo.tokenDate = new Date().getTime();
+
+                try {
+                    if (userInfo.DOB)
+                        userInfo.DOB = Number(userInfo.DOB);
+                } catch (error) {
+                    this.log.warn("Wierd DOB for user " + userInfo.email, userInfo.DOB);
+                    userInfo.DOB = -2495836800000;
+                }
+
+                var token = jwt.sign(userInfo, this.secret, jwtOptions);
+
+                return res.send({
+                    success: true,
+                    message: `User - ${userInfo.email} logged in.`,
+                    token: token,
+                    userInfo: userInfo,
+                    tokenExpireDate: new Date().setDate(new Date().getDate() + 7)
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `No user ${userId} found with Id`
+                })
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    }
+
     public AddPost = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
         try {
             var userPost = <VM.IPost>req.body;
@@ -148,8 +225,8 @@ export class AuthController extends BaseController {
                     postInfo: result
                 });
             } else {
-                return res.send(200, {
-                    success: true,
+                return res.send({
+                    success: false,
                     message: `Failed to add Post`
                 });
             }
@@ -164,9 +241,18 @@ export class AuthController extends BaseController {
             let params: VM.IPostVM = req.query;
 
             let searchRequest = <VM.IPostVM>{
-                from: Number(params.from || 0),
-                size: Number(params.size || 10)
+                from: Number(req.params.from || 0),
+                size: Number(req.params.size || 10)
             };
+
+            if (!this._.isNil(params.type) && params.type === "challenge") {
+                searchRequest.type = params.type;
+                if (!this._.isNil(params.challengeId)) {
+                    searchRequest.challengeId = params.challengeId;
+                } else {
+                    throw `No challengeId sent`;
+                }
+            }
 
             var user = this.GetUser(req);
 
@@ -594,7 +680,7 @@ export class AuthController extends BaseController {
 
             var result = await this.authService.AddPostComment(postComment);
 
-            if (this._.isNil(result)) {
+            if (!this._.isNil(result)) {
                 var updatePostCommentCount = await this.authService.UpdatePostCommentCount(postId, 1);
 
                 if (!this._.isNil(updatePostCommentCount)) {
@@ -610,7 +696,7 @@ export class AuthController extends BaseController {
                     })
                 }
             } else {
-                return res.send(200, {
+                return res.send({
                     success: false,
                     message: `Failed to add post comment`
                 });
@@ -641,7 +727,7 @@ export class AuthController extends BaseController {
 
             var result = await this.authService.UpdatePostComment(postId, user.userId, postCommentUpdate);
 
-            if (this._.isNil(result)) {
+            if (!this._.isNil(result)) {
                 return res.send(200, {
                     success: true,
                     message: `Updated post comment successfully`,
@@ -679,7 +765,7 @@ export class AuthController extends BaseController {
             }
             var result = await this.authService.DeletePostComment(commentId, postId, user.userId);
 
-            if (this._.isNil(result)) {
+            if (!this._.isNil(result)) {
 
                 var updatePostCommentCount = await this.authService.UpdatePostCommentCount(postId, -1);
 
@@ -790,7 +876,7 @@ export class AuthController extends BaseController {
             var result = await this.authService.RemovePostClaps(postId, user.userId);
             var clapsCountForPost = await this.authService.GetClapsForPostCount(postId);
 
-            if (this._.isNil(result)) {
+            if (!this._.isNil(result)) {
                 await this.authService.UpdateClapsCountForPost(postId, -1);
 
                 return res.send(200, {
