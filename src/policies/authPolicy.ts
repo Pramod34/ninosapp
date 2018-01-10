@@ -88,7 +88,7 @@ export async function TokenRefresh(req: restify.Request, res: restify.Response, 
                 var jwtOptions = <jwt.SignOptions>{};
                 jwtOptions.noTimestamp = false;
 
-                var query: any = await mdbModels.Auth.findOne({ email: user.email, userId: user.userId }).exec();
+                var query: any = await mdbModels.Auth.findOne({ userId: user.userId }).exec();
 
                 if (query) {
 
@@ -97,13 +97,15 @@ export async function TokenRefresh(req: restify.Request, res: restify.Response, 
 
                     var userObj = user;
 
+                    if (userObj.exp) {
+                        delete userObj.exp;
+                    }
+
                     if (!userObj.exp)
                         jwtOptions.expiresIn = "7d";
 
                     userObj.tokenDate = newDate.getTime();
                     userObj.childName = userInfo.childName;
-                    userObj.LastName = userInfo.LastName;
-                    userObj.Email = userInfo.Email;
 
                     var newToken = jwt.sign(userObj, config.get("auth.secret"), jwtOptions);
 

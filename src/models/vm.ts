@@ -14,7 +14,7 @@ export namespace VM {
         aboutus?: string;
     }
     export interface IPost {
-        userId: string;
+        userId?: string;
         type: string;
         isChallenge: boolean;
         challengeTitle?: string;
@@ -22,6 +22,7 @@ export namespace VM {
         tags?: string;
         title?: string;
         isVideo?: boolean;
+        userName?: string;
     }
 
     export interface IUserProfile {

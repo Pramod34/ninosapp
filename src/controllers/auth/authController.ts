@@ -41,7 +41,7 @@ export class AuthController extends BaseController {
                     if (userObj.DOB)
                         userObj.DOB = Number(userObj.DOB);
                 } catch (error) {
-                    this.log.warn("Wierd DOB for user " + userObj.email, userObj.DOB);
+                    this.log.warn("Wierd DOB for user " + userObj.userId, userObj.DOB);
                     userObj.DOB = -2495836800000;
                 }
 
@@ -54,7 +54,7 @@ export class AuthController extends BaseController {
 
                 return res.send({
                     success: true,
-                    message: `User - ${req.body.email} logged in.`,
+                    message: `User - ${req.body.userId} logged in.`,
                     token: token,
                     userInfo: userObj,
                     tokenExpireDate: new Date().setDate(new Date().getDate() + 7)
@@ -65,7 +65,6 @@ export class AuthController extends BaseController {
 
             var userInfo = <dbTypes.IAuth>{
                 isFirstLogin: user.isFirstLogin,
-                email: user.email,
                 userId: user.userId,
                 DOB: user.DOB,
                 parentName: user.parentName,
@@ -73,21 +72,20 @@ export class AuthController extends BaseController {
                 isEnabled: true
             };
 
+            if (!this._.isNil(user.email)) {
+                userInfo.email = user.email;
+            }
+
+            if (!this._.isNil(user.phoneNo)) {
+                userInfo.phoneNo = user.phoneNo;
+            }
+
             var createdUser = await this.authService.CreateUser(userInfo);
 
             if (createdUser) {
 
-                // try {
-                //     if (createdUser.DOB)
-                //         createdUser.DOB = createdUser.DOB.toNumber();
-                // } catch (error) {
-                //     this.log.warn("Wierd DOB for user " + userObj.Email, userObj.DOB);
-                //     createdUser.DOB = -2495836800000;
-                // }
-
                 var userDetails = <any>{
                     DOB: createdUser.DOB,
-                    email: createdUser.email,
                     parentName: createdUser.parentName,
                     childName: createdUser.childName,
                     userId: createdUser.userId,
@@ -95,11 +93,19 @@ export class AuthController extends BaseController {
                     tokenDate: new Date().getTime(),
                 };
 
+                if (!this._.isNil(createdUser.email)) {
+                    userDetails.email = createdUser.email;
+                }
+
+                if (!this._.isNil(createdUser.phoneNo)) {
+                    userDetails.phoneNo = createdUser.phoneNo;
+                }
+
                 await this.authService.SetUserLastLogin(userDetails.userId);
 
                 return res.send(200, {
                     success: true,
-                    message: `User - ${req.body.email} logged in.`,
+                    message: `User - ${req.body.userId} logged in.`,
                     token: jwt.sign(userDetails, this.secret, jwtOptions),
                     userInfo: userDetails,
                     tokenExpireDate: new Date().setDate(new Date().getDate() + 7)
@@ -134,13 +140,6 @@ export class AuthController extends BaseController {
 
                 var userInfo = result._doc;
 
-                // DOB: createdUser.DOB,
-                //     email: createdUser.email,
-                //     parentName: createdUser.parentName,
-                //     childName: createdUser.childName,
-                //     userId: createdUser.userId,
-                //     isFirstLogin: createdUser.isFirstLogin,
-
                 delete userInfo.isEnabled;
 
                 if (!this._.isNil(userInfo.school))
@@ -169,7 +168,7 @@ export class AuthController extends BaseController {
                     if (userInfo.DOB)
                         userInfo.DOB = Number(userInfo.DOB);
                 } catch (error) {
-                    this.log.warn("Wierd DOB for user " + userInfo.email, userInfo.DOB);
+                    this.log.warn("Wierd DOB for user " + userInfo.userId, userInfo.DOB);
                     userInfo.DOB = -2495836800000;
                 }
 
@@ -177,7 +176,7 @@ export class AuthController extends BaseController {
 
                 return res.send({
                     success: true,
-                    message: `User - ${userInfo.email} logged in.`,
+                    message: `User - ${userInfo.userId} logged in.`,
                     token: token,
                     userInfo: userInfo,
                     tokenExpireDate: new Date().setDate(new Date().getDate() + 7)
@@ -202,19 +201,9 @@ export class AuthController extends BaseController {
                 throw `Not authorized user`;
             }
 
-            if (this._.isNil(userPost.type) || userPost.type.trim() === "") {
-                throw `No post type sent`;
+            if (!this._.isNil(userPost.type)) {
+                userPost.type = "post";
             }
-
-            if (userPost.isChallenge === true && (this._.isNil(userPost.challengeTitle) || userPost.challengeTitle.trim() === "")) {
-                throw `No challengeTitle sent`;
-            }
-
-            if (userPost.isChallenge === true && (this._.isNil(userPost.challengeId) || userPost.challengeId === "")) {
-                throw `No challenge Id sent`;
-            }
-
-            userPost.userId = user.userId;
 
             var result = await this.authService.AddPost(userPost);
 
@@ -300,8 +289,8 @@ export class AuthController extends BaseController {
                     postInfo: result
                 });
             } else {
-                return res.send(200, {
-                    success: true,
+                return res.send({
+                    success: false,
                     message: `Failed to get Post`
                 });
             }
@@ -315,9 +304,30 @@ export class AuthController extends BaseController {
             var postId = req.params.postId;
             var userUpdatePost = <VM.IPost>req.body;
 
+            var user = this.GetUser(req);
+
+            if (this._.isNil(user)) {
+                throw `Not authorized user`;
+            }
+
             if (this._.isNil(postId) || postId.trim() === "") {
                 throw `No postId sent`;
             }
+
+            if (this._.isNil(userUpdatePost.type) || userUpdatePost.type.trim() === "") {
+                throw `No post type sent`;
+            }
+
+            if (userUpdatePost.isChallenge === true && (this._.isNil(userUpdatePost.challengeTitle) || userUpdatePost.challengeTitle.trim() === "")) {
+                throw `No challengeTitle sent`;
+            }
+
+            if (userUpdatePost.isChallenge === true && (this._.isNil(userUpdatePost.challengeId) || userUpdatePost.challengeId === "")) {
+                throw `No challenge Id sent`;
+            }
+
+            userUpdatePost.userId = user.userId;
+            userUpdatePost.userName = user.childName;
 
             var result = await this.authService.UpdatePost(userUpdatePost, postId);
 
@@ -328,8 +338,8 @@ export class AuthController extends BaseController {
                     postInfo: result
                 });
             } else {
-                return res.send(200, {
-                    success: true,
+                return res.send({
+                    success: false,
                     message: `Failed to update Post`
                 });
             }
@@ -384,7 +394,7 @@ export class AuthController extends BaseController {
             } else {
                 return res.send({
                     success: false,
-                    message: `Failed to get user profile`
+                    message: `Failed to get user public profile`
                 })
             }
         } catch (error) {
@@ -500,7 +510,7 @@ export class AuthController extends BaseController {
                     quizeData: result
                 });
             } else {
-                return res.send(200, {
+                return res.send({
                     success: false,
                     message: `Failed to get user quizzes`
                 });
@@ -533,7 +543,7 @@ export class AuthController extends BaseController {
                     message: `Quiz started successfully`
                 });
             } else {
-                return res.send(200, {
+                return res.send({
                     success: false,
                     message: `Failed to start user quiz`
                 });
@@ -641,7 +651,7 @@ export class AuthController extends BaseController {
                     message: `Post deleted successfully`
                 });
             } else {
-                return res.send(200, {
+                return res.send({
                     success: false,
                     message: `Failed to delete post`
                 });
@@ -894,4 +904,32 @@ export class AuthController extends BaseController {
             this.ErrorResult(error, req, res, next);
         }
     };
+
+    public GetChallenges = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var params = req.params;
+
+            let paginate = <VM.IPaginate>{
+                from: Number(params.from || 0),
+                size: Number(params.size || 10)
+            };
+
+            var result = await this.authService.GetChallenges(paginate);
+
+            if (!this._.isNil(result)) {
+                return res.send(200, {
+                    success: true,
+                    message: `Challenges retrived successfully`,
+                    questions: result.title
+                })
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to get challenges`
+                })
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    }
 }

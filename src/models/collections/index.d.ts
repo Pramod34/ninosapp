@@ -6,21 +6,23 @@ export interface INinosDB {
     Quizzes: Model<IQuizzes>;
     Evalution: Model<IEvalution>;
     PostComments: Model<IPostComments>;
+    Challenges: Model<IChallenges>;
 
 }
 
 //incomplete one
 export interface IPost extends Document {
-    userId: string;
-    type: string;
-    isChallenge: boolean;
+    userId?: string;
+    type?: string;
+    isChallenge?: boolean;
     challengeTitle?: string;
     challengeId?: string;
     tags?: string;
     title?: string;
     totalClapsCount: number;
     totalCommentCount: number;
-    isVideo: boolean;
+    isVideo?: boolean;
+    userName?: string;
 }
 
 export interface IAuth extends Document {
@@ -28,7 +30,7 @@ export interface IAuth extends Document {
     userId: string;
     childName: string;
     DOB: number;
-    email: string;
+    email?: string;
     school?: string;
     gender?: string;
     city?: string;
@@ -36,6 +38,7 @@ export interface IAuth extends Document {
     aboutus?: string;
     isFirstLogin: boolean;
     isEnabled: boolean;
+    phoneNo?: number;
 }
 
 export interface IQuizzes extends Document {
@@ -74,4 +77,11 @@ export interface IPostComments extends Document {
     userId: string;
     userName: string;
     comment: string;
+}
+
+export interface IChallenges extends Document {
+    title: string;
+    image?:string;
+    description?:string;
+    tags?: string[];
 }

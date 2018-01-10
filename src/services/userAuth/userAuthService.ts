@@ -74,7 +74,7 @@ export class UserAuthService extends BaseService {
 
     public GetPosts = async (searchRequest: VM.IPostVM): Promise<any> => {
         try {
-            var criteria: any = {};
+            var criteria: any = { userId: { $exists: true } };
 
             if (!this._.isNil(searchRequest.type)) {
                 criteria.type = searchRequest.type
@@ -103,7 +103,7 @@ export class UserAuthService extends BaseService {
 
     public UpdatePost = async (updatePostDetails: VM.IPost, postId: string): Promise<any> => {
         try {
-            var queryResult = await mdbModels.Post.findOneAndUpdate({ _id: postId }, { $set: updatePostDetails }, { upsert: true }).exec();
+            var queryResult = await mdbModels.Post.findOneAndUpdate({ _id: postId }, { $set: updatePostDetails }, { upsert: true, new: true }).exec();
             return queryResult;
         } catch (error) {
             throw error;
@@ -450,6 +450,21 @@ export class UserAuthService extends BaseService {
             throw error;
         } finally {
             this.rF.Disconnect();
+        }
+    };
+
+    public GetChallenges = async (paginate: VM.IPaginate): Promise<any> => {
+        try {
+            var query = await mdbModels.Challenges.find({})
+                .select("title")
+                .skip(paginate.from)
+                .limit(paginate.size)
+                .sort({ "createdAt": -1 })
+                .exec()
+
+            return query;
+        } catch (error) {
+            throw error;
         }
     }
 }

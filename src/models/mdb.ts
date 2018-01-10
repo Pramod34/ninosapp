@@ -37,13 +37,13 @@ var authSchema = new mongoose.Schema({
         trim: true
     },
     DOB: {
-        type: String,
+        type: Number,
         required: true,
         trim: true
     },
     email: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
     school: {
@@ -79,18 +79,28 @@ var authSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: true
+    },
+    phoneNo: {
+        type: Number,
+        required: false,
+        trim: true
     }
 }, { timestamps: {}, versionKey: false });
 
 var postSchema = new mongoose.Schema({
     userId: {
         type: String,
-        required: true,
+        required: false,
+        trim: true
+    },
+    userName: {
+        type: String,
+        required: false,
         trim: true
     },
     type: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
     isChallenge: {
@@ -257,11 +267,35 @@ var postCommentsSchema = new mongoose.Schema({
     }
 }, { timestamps: {}, versionKey: false })
 
+var challengesSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    tags: {
+        type: [String],
+        required: false,
+        trim: true
+    },
+    description: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    image: {
+        type: String,
+        required: false,
+        trim: true
+    }
+}, { timestamps: {}, versionKey: false })
+
 export const mdbModels: dbTypes.INinosDB = {
     Auth: conn.model<dbTypes.IAuth>("Auth", authSchema),
     Post: conn.model<dbTypes.IPost>("Post", postSchema),
     Quizzes: conn.model<dbTypes.IQuizzes>("Quizzes", quizSchema),
     Evalution: conn.model<dbTypes.IEvalution>("Evalution", evalutionSchema),
-    PostComments: conn.model<dbTypes.IPostComments>("PostComments", postCommentsSchema)
+    PostComments: conn.model<dbTypes.IPostComments>("PostComments", postCommentsSchema),
+    Challenges: conn.model<dbTypes.IChallenges>("Challenges", challengesSchema)
 }
 
