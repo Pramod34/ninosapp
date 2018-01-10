@@ -617,6 +617,73 @@ export class AuthController extends BaseController {
         } catch (error) {
             this.ErrorResult(error, req, res, next);
         }
+    };
+
+    public EvaluateResult = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var user = this.GetUser(req);
+
+            var evaluationId = req.body.evaluationId;
+            var quizId = req.params.quizId;
+
+            if (this._.isNil(user)) {
+                throw `User not logged in`;
+            }
+
+            if (this._.isNil(quizId)) {
+                throw `No quizId sent`;
+            }
+
+            if (this._.isNil(evaluationId)) {
+                throw `No evaluationId sent`;
+            }
+
+            var result = await this.authService.EvaluateQuizResult(user.userId, quizId, evaluationId);
+
+            if (!this._.isNil(result)) {
+                return res.send(200, {
+                    success: true,
+                    message: `User quiz evaluate successfully`,
+                    evaluateInfo: result
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to evaluate user quiz`
+                });
+            }
+
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
+
+    public GetUserEvaluationResult = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var userId = req.params.userId;
+            var quizId = req.params.quizId;
+
+            if (this._.isNil(userId) || this._.isNil(quizId)) {
+                throw `No userId and quizId sent`;
+            }
+
+            var result = await this.authService.GetUserEvaluationResult(userId, quizId);
+
+            if (this._.isNil(result)) {
+                return res.send(200, {
+                    success: true,
+                    message: `Fetched user evaluation result successfully`,
+                    evaluateResult: result
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to fetch evaluation result`
+                });
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
     }
 
     public DeletePost = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {

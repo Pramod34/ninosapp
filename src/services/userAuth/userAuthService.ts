@@ -291,6 +291,56 @@ export class UserAuthService extends BaseService {
         }
     };
 
+    public EvaluateQuizResult = async (userId: string, quizId: string, evaluationId: string): Promise<any> => {
+        try {
+            var quizEvaluation = await mdbModels.Evalution.findOne({ userId: userId, quizId: quizId, _id: evaluationId }).exec();
+
+            if (this._.isNil(quizEvaluation)) {
+                throw `No quiz evaluation found`;
+            }
+
+            var score = 0;
+
+            quizEvaluation.mcqSolution.forEach(x => {
+                if (x.status === "correct") {
+                    score = score + 2;
+                }
+            });
+
+            var updateQuizScore = await mdbModels.Evalution.findOneAndUpdate({ _id: evaluationId, userId: userId, quizId: quizId }, { $set: { acquiredScore: score, completedDate: new Date() } }, { upsert: true, new: true }).exec();
+
+            return updateQuizScore;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    public GetUserEvaluationResult = async (userId: string, quizId: string): Promise<any> => {
+        try {
+            var quizEvaluation = await mdbModels.Evalution.findOne({ userId: userId, quizId: quizId, completedDate: { $exists: true } }).exec();
+
+            if (this._.isNil(quizEvaluation)) {
+                throw `user may not have completed the quiz`;
+            }
+
+            var quizQuestions = await mdbModels.Quizzes.findOne({ _id: quizId }).select("questions.question questions.solution").exec();
+
+            var finalResult: any = {
+                totalScore: quizEvaluation.totalScore,
+                acquiredScore: quizEvaluation.acquiredScore
+            }
+
+            if (!this._.isNil(quizQuestions)) {
+                finalResult.questions = quizQuestions.questions;
+            }
+
+            return finalResult;
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
     public GetPostAuthorID = async (postId: string): Promise<any> => {
         try {
             var result = await mdbModels.Post.findOne({ _id: postId }).select("userId").exec();
