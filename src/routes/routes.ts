@@ -36,7 +36,7 @@ export class RoutesManager {
         this.restify.get("/challenges/:challengeId", registerController.GetChallenge);
 
         this.restify.get("/quizzes", authCheck, registerController.GetQuizzes);
-        this.restify.put("/quizzes/:quizId/start", authCheck, registerController.StartQuiz)
+        this.restify.put("/quizzes/:quizId/start", authCheck, registerController.StartQuiz);
         this.restify.get("/quizzes/:quizId/questions", authCheck, registerController.GetQuizQuestions);
 
         this.restify.post("/quizzes/:quizId/evaluate", authCheck, registerController.EvaluateResult);
@@ -53,6 +53,8 @@ export class RoutesManager {
 
         this.restify.put("/posts/:postId/claps", authCheck, registerController.AddPostClaps);
         this.restify.del("/posts/:postId/claps", authCheck, registerController.RemovePostClaps);
+
+        this.restify.get("/users", authCheck, registerController.GetUsers);
 
         this.log.info("Routes Register Complete ✔");
     }
