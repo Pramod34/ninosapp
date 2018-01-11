@@ -55,5 +55,6 @@ export namespace VM {
     export interface IPostVM extends IPaginate {
         type: string;
         challengeId?: string;
+        userId?: string;
     }
 }

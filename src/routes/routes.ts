@@ -33,6 +33,7 @@ export class RoutesManager {
         this.restify.patch("/profile/settings", authCheck, registerController.UpdateUserDetails);
 
         this.restify.get("/challenges", registerController.GetChallenges);
+        this.restify.get("/challenges/:challengeId", registerController.GetChallenge);
 
         this.restify.get("/quizzes", authCheck, registerController.GetQuizzes);
         this.restify.put("/quizzes/:quizId/start", authCheck, registerController.StartQuiz)

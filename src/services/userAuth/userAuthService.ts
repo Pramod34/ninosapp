@@ -79,6 +79,15 @@ export class UserAuthService extends BaseService {
             if (!this._.isNil(searchRequest.type)) {
                 criteria.type = searchRequest.type
             }
+
+            if (!this._.isNil(searchRequest.challengeId)) {
+                criteria.challengeId = searchRequest.challengeId;
+            }
+
+            if (!this._.isNil(searchRequest.userId)) {
+                criteria.userId = searchRequest.userId;
+            }
+
             var results = await mdbModels.Post.find(criteria)
                 .skip(searchRequest.from)
                 .limit(searchRequest.size)
@@ -516,5 +525,15 @@ export class UserAuthService extends BaseService {
         } catch (error) {
             throw error;
         }
-    }
+    };
+
+    public GetChallenge = async (challengeId: string): Promise<any> => {
+        try {
+            var challengeResult = await mdbModels.Challenges.findOne({ _id: challengeId }).exec();
+
+            return challengeResult;
+        } catch (error) {
+            throw error;
+        }
+    };
 }

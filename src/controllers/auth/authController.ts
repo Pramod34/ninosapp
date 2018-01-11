@@ -243,6 +243,10 @@ export class AuthController extends BaseController {
                 }
             }
 
+            if (!this._.isNil(params.userId)) {
+                searchRequest.userId = params.userId;
+            }
+
             var user = this.GetUser(req);
 
             var result = await this.authService.GetPosts(searchRequest);
@@ -994,6 +998,33 @@ export class AuthController extends BaseController {
                     success: false,
                     message: `Failed to get challenges`
                 })
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
+
+    public GetChallenge = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var challengeId = req.params.challengeId;
+
+            if (this._.isNil(challengeId)) {
+                throw `No challengeId sent`;
+            }
+
+            var result = await this.authService.GetChallenge(challengeId);
+
+            if (!this._.isNil(result)) {
+                return res.send(200, {
+                    success: true,
+                    message: `Challenge ${challengeId} retrived successfully`,
+                    challengeInfo: result
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to get challenge`
+                });
             }
         } catch (error) {
             this.ErrorResult(error, req, res, next);
