@@ -17,6 +17,8 @@ export declare class AuthController extends BaseController {
     StartQuiz: (req: any, res: any, next: any) => Promise<any>;
     GetQuizQuestions: (req: any, res: any, next: any) => Promise<any>;
     UpdateSolutionForQuizQuestion: (req: any, res: any, next: any) => Promise<any>;
+    EvaluateResult: (req: any, res: any, next: any) => Promise<any>;
+    GetUserEvaluationResult: (req: any, res: any, next: any) => Promise<any>;
     DeletePost: (req: any, res: any, next: any) => Promise<any>;
     AddPostComment: (req: any, res: any, next: any) => Promise<any>;
     UpdatePostComment: (req: any, res: any, next: any) => Promise<any>;
@@ -24,4 +26,6 @@ export declare class AuthController extends BaseController {
     GetPostComments: (req: any, res: any, next: any) => Promise<any>;
     AddPostClaps: (req: any, res: any, next: any) => Promise<any>;
     RemovePostClaps: (req: any, res: any, next: any) => Promise<any>;
+    GetChallenges: (req: any, res: any, next: any) => Promise<any>;
+    GetChallenge: (req: any, res: any, next: any) => Promise<any>;
 }

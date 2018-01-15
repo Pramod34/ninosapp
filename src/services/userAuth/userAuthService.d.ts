@@ -21,6 +21,8 @@ export declare class UserAuthService extends BaseService {
     StartQuiz: (userId: string, quizId: string) => Promise<any>;
     GetQuizQuestions: (quizId: string) => Promise<any>;
     UpdateSolutionForQuizQuestion: (userId: string, quizId: string, questionId: string, submittedInfo: VM.IUpdateQuizAnswer) => Promise<any>;
+    EvaluateQuizResult: (userId: string, quizId: string, evaluationId: string) => Promise<any>;
+    GetUserEvaluationResult: (userId: string, quizId: string) => Promise<any>;
     GetPostAuthorID: (postId: string) => Promise<any>;
     DeletePost: (postId: string, userId: string) => Promise<any>;
     AddPostComment: (postComment: VM.IPostComment) => Promise<any>;
@@ -33,4 +35,6 @@ export declare class UserAuthService extends BaseService {
     GetClapsForPostCount: (postId: string) => Promise<any>;
     RemovePostClaps: (postId: string, userId: string) => Promise<any>;
     GetUserClaps: (userId: string, postId: string) => Promise<any>;
+    GetChallenges: (paginate: VM.IPaginate) => Promise<any>;
+    GetChallenge: (challengeId: string) => Promise<any>;
 }
