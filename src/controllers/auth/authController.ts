@@ -991,7 +991,7 @@ export class AuthController extends BaseController {
                 return res.send(200, {
                     success: true,
                     message: `Challenges retrived successfully`,
-                    questions: result.title
+                    challenges: result
                 })
             } else {
                 return res.send({
