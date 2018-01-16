@@ -29,4 +29,6 @@ export declare class AuthController extends BaseController {
     GetChallenges: (req: any, res: any, next: any) => Promise<any>;
     GetChallenge: (req: any, res: any, next: any) => Promise<any>;
     GetUsers: (req: any, res: any, next: any) => Promise<any>;
+    SearchPosts: (req: any, res: any, next: any) => Promise<any>;
+    SearchChallenge: (req: any, res: any, next: any) => Promise<any>;
 }

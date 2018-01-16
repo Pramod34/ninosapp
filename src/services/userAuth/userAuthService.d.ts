@@ -38,4 +38,6 @@ export declare class UserAuthService extends BaseService {
     GetChallenges: (paginate: VM.IPaginate) => Promise<any>;
     GetChallenge: (challengeId: string) => Promise<any>;
     GetUsers: (searchUserObj: VM.ISearchUser) => Promise<any>;
+    SearchPosts: (searchPosts: VM.ISearch) => Promise<any>;
+    SearchChallenge: (SearchChallenge: VM.ISearch) => Promise<any>;
 }

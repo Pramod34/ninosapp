@@ -1062,5 +1062,71 @@ export class AuthController extends BaseController {
         } catch (error) {
             this.ErrorResult(error, req, res, next);
         }
+    };
+
+    public SearchPosts = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var searchPostInfo = <VM.ISearch>req.query;
+
+            if (this._.isNil(searchPostInfo.keyword)) {
+                throw `No keyword sent.`;
+            }
+
+            let searchUserObj = <VM.ISearch>{
+                from: Number(searchPostInfo.from || 0),
+                size: Number(searchPostInfo.size || 10),
+                keyword: searchPostInfo.keyword
+            };
+
+            var result = await this.authService.SearchPosts(searchUserObj);
+
+            if (!this._.isNil(result)) {
+                return res.send(200, {
+                    success: true,
+                    message: `Posts retrived successfully`,
+                    postsInfo: result || []
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to get posts`
+                });
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    }
+
+    public SearchChallenge = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var searchChallengeInfo = <VM.ISearch>req.query;
+
+            if (this._.isNil(searchChallengeInfo.keyword)) {
+                throw `No keyword sent.`;
+            }
+
+            let searchUserObj = <VM.ISearch>{
+                from: Number(searchChallengeInfo.from || 0),
+                size: Number(searchChallengeInfo.size || 10),
+                keyword: searchChallengeInfo.keyword
+            };
+
+            var result = await this.authService.SearchChallenge(searchUserObj);
+
+            if (!this._.isNil(result)) {
+                return res.send(200, {
+                    success: true,
+                    message: `Challenges retrived successfully`,
+                    challenges: result || []
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to get Challenges`
+                });
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
     }
 }

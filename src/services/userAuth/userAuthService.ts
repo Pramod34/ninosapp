@@ -551,4 +551,32 @@ export class UserAuthService extends BaseService {
             throw error;
         }
     };
+
+    public SearchPosts = async (searchPosts: VM.ISearch): Promise<any> => {
+        try {
+            var result = mdbModels.Post.find({ $text: { $search: searchPosts.keyword } })
+                .skip(searchPosts.from)
+                .limit(searchPosts.size)
+                .sort({ "createdAt": -1 })
+                .exec()
+
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    public SearchChallenge = async (SearchChallenge: VM.ISearch): Promise<any> => {
+        try {
+            var result = mdbModels.Challenges.find({ $text: { $search: SearchChallenge.keyword } })
+                .skip(SearchChallenge.from)
+                .limit(SearchChallenge.size)
+                .sort({ "createdAt": -1 })
+                .exec()
+
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
 }

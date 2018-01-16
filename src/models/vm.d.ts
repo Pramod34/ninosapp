@@ -55,4 +55,7 @@ export declare namespace VM {
     interface ISearchUser extends IPaginate {
         userName: string;
     }
+    interface ISearch extends IPaginate {
+        keyword: string;
+    }
 }

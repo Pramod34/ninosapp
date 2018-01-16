@@ -292,10 +292,10 @@ var challengesSchema = new mongoose.Schema({
 
 export const mdbModels: dbTypes.INinosDB = {
     Auth: conn.model<dbTypes.IAuth>("Auth", authSchema),
-    Post: conn.model<dbTypes.IPost>("Post", postSchema),
+    Post: conn.model<dbTypes.IPost>("Post", postSchema.index({ title: "text", tags: "text" }, { name: "search-posts-index" })),
     Quizzes: conn.model<dbTypes.IQuizzes>("Quizzes", quizSchema),
     Evalution: conn.model<dbTypes.IEvalution>("Evalution", evalutionSchema),
     PostComments: conn.model<dbTypes.IPostComments>("PostComments", postCommentsSchema),
-    Challenges: conn.model<dbTypes.IChallenges>("Challenges", challengesSchema)
+    Challenges: conn.model<dbTypes.IChallenges>("Challenges", challengesSchema.index({ title: "text", description: "text", tags: "text" }, { name: "search-challenge-index" }))
 }
 
