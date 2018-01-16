@@ -28,4 +28,5 @@ export declare class AuthController extends BaseController {
     RemovePostClaps: (req: any, res: any, next: any) => Promise<any>;
     GetChallenges: (req: any, res: any, next: any) => Promise<any>;
     GetChallenge: (req: any, res: any, next: any) => Promise<any>;
+    GetUsers: (req: any, res: any, next: any) => Promise<any>;
 }

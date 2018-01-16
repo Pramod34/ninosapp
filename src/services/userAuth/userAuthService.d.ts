@@ -37,4 +37,5 @@ export declare class UserAuthService extends BaseService {
     GetUserClaps: (userId: string, postId: string) => Promise<any>;
     GetChallenges: (paginate: VM.IPaginate) => Promise<any>;
     GetChallenge: (challengeId: string) => Promise<any>;
+    GetUsers: (searchUserObj: VM.ISearchUser) => Promise<any>;
 }

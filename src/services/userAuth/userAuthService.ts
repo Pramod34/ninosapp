@@ -536,4 +536,19 @@ export class UserAuthService extends BaseService {
             throw error;
         }
     };
+
+    public GetUsers = async (searchUserObj: VM.ISearchUser): Promise<any> => {
+        try {
+            var result = await mdbModels.Auth.find({ childName: { $regex: searchUserObj.userName, $options: 'i' } })
+                .select("userId childName parentName city")
+                .skip(searchUserObj.from)
+                .limit(searchUserObj.size)
+                .sort({ "childName": -1 })
+                .exec();
+
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    };
 }

@@ -54,7 +54,7 @@ export class RoutesManager {
         this.restify.put("/posts/:postId/claps", authCheck, registerController.AddPostClaps);
         this.restify.del("/posts/:postId/claps", authCheck, registerController.RemovePostClaps);
 
-        // this.restify.get("/users", authCheck, registerController.GetUsers);
+        this.restify.get("/users", authCheck, registerController.GetUsers);
 
         this.log.info("Routes Register Complete ✔");
     }

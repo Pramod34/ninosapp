@@ -1029,5 +1029,38 @@ export class AuthController extends BaseController {
         } catch (error) {
             this.ErrorResult(error, req, res, next);
         }
+    };
+
+    public GetUsers = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var searchUserInfo = <VM.ISearchUser>req.query;
+
+            if (this._.isNil(searchUserInfo.userName)) {
+                throw `No userName sent.`;
+            }
+
+            let searchUserObj = <VM.ISearchUser>{
+                from: Number(searchUserInfo.from || 0),
+                size: Number(searchUserInfo.size || 10),
+                userName: searchUserInfo.userName
+            };
+
+            var result = await this.authService.GetUsers(searchUserObj);
+
+            if (!this._.isNil(result)) {
+                return res.send(200, {
+                    success: true,
+                    message: `Users retrived successfully`,
+                    users: result
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to get users`
+                });
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
     }
 }

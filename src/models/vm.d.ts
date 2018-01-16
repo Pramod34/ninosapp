@@ -52,4 +52,7 @@ export declare namespace VM {
         challengeId?: string;
         userId?: string;
     }
+    interface ISearchUser extends IPaginate {
+        userName: string;
+    }
 }
