@@ -1,5 +1,5 @@
 import dbTypes = require("../../models/collections");
-import { mdbModels } from "../../models/mdb";
+import { mdbModels, mdbReviewModels } from "../../models/mdb";
 import { BaseService } from "../../policies/baseService";
 import { RedisFactory } from "../../factories/redisFactory";
 import { VM } from "../../models/vm";
@@ -9,11 +9,15 @@ export class UserAuthService extends BaseService {
     private rF: RedisFactory;
     private usersLastLogin: string;
     private postClapsByUser: string;
+    private reportPostsByUser: string;
+    private reportPostCommentByUser: string;
     constructor() {
         super();
         this.rF = new RedisFactory();
         this.usersLastLogin = "usersLastLogin";
         this.postClapsByUser = "postClapsByUser";
+        this.reportPostsByUser = "reportPostsByUser";
+        this.reportPostCommentByUser = "reportPostCommentByUser";
     }
 
     public CheckUser = async (userId: string): Promise<any> => {
@@ -72,7 +76,7 @@ export class UserAuthService extends BaseService {
         }
     };
 
-    public GetPosts = async (searchRequest: VM.IPostVM): Promise<any> => {
+    public GetPosts = async (searchRequest: VM.IPostVM, userId: string): Promise<any> => {
         try {
             var criteria: any = { userId: { $exists: true } };
 
@@ -86,6 +90,12 @@ export class UserAuthService extends BaseService {
 
             if (!this._.isNil(searchRequest.userId)) {
                 criteria.userId = searchRequest.userId;
+            }
+
+            var userReportedPostIds = await this.GetUserReportedPosts(userId);
+
+            if (!this._.isNil(userReportedPostIds) && userReportedPostIds.length > 0) {
+                criteria._id = { $nin: userReportedPostIds }
             }
 
             var results = await mdbModels.Post.find(criteria)
@@ -427,9 +437,20 @@ export class UserAuthService extends BaseService {
         }
     };
 
-    public GetPostComments = async (postId: string, searchRequest: VM.IPaginate): Promise<any> => {
+    public GetPostComments = async (postId: string, searchRequest: VM.IPaginate, userId: string): Promise<any> => {
         try {
-            var queryResult = await mdbModels.PostComments.find({ postId: postId })
+
+            var criteria: any = { postId: postId };
+
+            if (!this._.isNil(userId)) {
+                var userReportedPostCommentIds = await this.GetUserReportedPostComments(userId, postId);
+
+                if (userReportedPostCommentIds.length > 0) {
+                    criteria._id = { $nin: userReportedPostCommentIds }
+                }
+            }
+
+            var queryResult = await mdbModels.PostComments.find(criteria)
                 .skip(searchRequest.from)
                 .limit(searchRequest.size)
                 .sort({ "createdAt": -1 })
@@ -578,5 +599,126 @@ export class UserAuthService extends BaseService {
         } catch (error) {
             throw error;
         }
-    }
+    };
+
+    public UserReportOnPost = async (userId: string, reportDetails: VM.IUserPostReport): Promise<any> => {
+        try {
+            var reportedPostModel = <dbTypes.IReportedPosts>{
+                postId: reportDetails.postId,
+                userId: userId,
+                userReport: reportDetails.userReport,
+                reportedDate: new Date()
+            };
+
+            var result = await mdbReviewModels.ReportedPosts.create(reportedPostModel);
+
+            if (!this._.isNil(result)) {
+
+                await this.rF.ConnectToRedis(this.rF.redisDB.dbReportPost);
+
+                var keyUser = `${this.reportPostsByUser}:${userId}`;
+                var response = await this.rF.redisClient.saddAsync(keyUser, reportDetails.postId);
+
+                if (response === 1 || response === 0) {
+                    return true
+                } else {
+                    return false;
+                }
+
+            } else {
+                throw `Failed to add user report with cause`;
+            }
+        } catch (error) {
+            throw error;
+        } finally {
+            this.rF.Disconnect();
+        }
+    };
+
+    public GetUserReportedPosts = async (userId: string): Promise<any> => {
+        try {
+            await this.rF.ConnectToRedis(this.rF.redisDB.dbReportPost);
+
+            var keyUser = `${this.reportPostsByUser}:${userId}`;
+
+            var result = await this.rF.redisClient.smembersAsync(keyUser);
+
+            return result;
+        } catch (error) {
+            throw error;
+        } finally {
+            this.rF.Disconnect();
+        }
+    };
+
+    public UserReportOnPostComment = async (userId: string, postCommentReport: VM.IUserPostCommentReport): Promise<any> => {
+        try {
+
+            var reportedPostCommentModel = <dbTypes.IReportedPostComments>{
+                postId: postCommentReport.postId,
+                userId: userId,
+                commentId: postCommentReport.commentId,
+                userReport: postCommentReport.userReport,
+                reportedDate: new Date()
+            };
+
+            var result = await mdbReviewModels.ReportedPostComments.create(reportedPostCommentModel);
+
+            if (!this._.isNil(result)) {
+
+                await this.rF.ConnectToRedis(this.rF.redisDB.dbReportPost);
+
+                var response, arrCommentID: string[];
+
+                var keyUser = `${this.reportPostCommentByUser}:${userId}`;
+                var userResponse = await this.rF.redisClient.hgetAsync(keyUser, postCommentReport.postId);
+
+                if (userResponse === null) {
+                    arrCommentID = [postCommentReport.commentId];
+                    response = await this.rF.redisClient.hsetAsync(keyUser, postCommentReport.postId, JSON.stringify(arrCommentID));
+                }
+                else {
+                    arrCommentID = JSON.parse(userResponse);
+                    arrCommentID.push(postCommentReport.commentId);
+                    response = await this.rF.redisClient.hsetAsync(keyUser, postCommentReport.postId, JSON.stringify(this._.uniq(arrCommentID)));
+                }
+
+                if (response === 0 || response === 1) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            } else {
+                throw `Failed to add post comment.`;
+            }
+        } catch (error) {
+            throw error;
+        } finally {
+            this.rF.Disconnect();
+        }
+    };
+
+    public GetUserReportedPostComments = async (userId: string, postId: string): Promise<any> => {
+        try {
+            await this.rF.ConnectToRedis(this.rF.redisDB.dbReportPost);
+
+            var keyUser = `${this.reportPostCommentByUser}:${userId}`;
+            var userResponse = await this.rF.redisClient.hgetAsync(keyUser, postId);
+
+            var postCommentIds: string[];
+
+            if (!this._.isNil(userResponse)) {
+                postCommentIds = JSON.parse(userResponse);
+            } else {
+                postCommentIds = [];
+            }
+
+            return postCommentIds;
+        } catch (error) {
+            throw error;
+        } finally {
+            this.rF.Disconnect();
+        }
+    };
 }

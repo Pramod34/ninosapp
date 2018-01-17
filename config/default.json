@@ -32,5 +32,15 @@
         "replSetName": "",
         "ssl": "false",
         "username": "sa"
+    },
+    "mdb-ninosreview": {
+        "database": "ninos-review",
+        "hosts": [
+            "pramod-in:27017"
+        ],
+        "password": "D0cum3ntum",
+        "replSetName": "",
+        "ssl": "false",
+        "username": "sa"
     }
 }

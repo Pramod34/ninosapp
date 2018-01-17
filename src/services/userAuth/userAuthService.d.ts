@@ -5,12 +5,13 @@ export declare class UserAuthService extends BaseService {
     private rF;
     private usersLastLogin;
     private postClapsByUser;
+    private reportPostsByUser;
     constructor();
     CheckUser: (userId: string) => Promise<any>;
     CreateUser: (userInfo: dbTypes.IAuth) => Promise<any>;
     SetUserLastLogin: (userId: string) => Promise<void>;
     AddPost: (userPost: VM.IPost) => Promise<any>;
-    GetPosts: (searchRequest: VM.IPostVM) => Promise<any>;
+    GetPosts: (searchRequest: VM.IPostVM, userId: string) => Promise<any>;
     GetPost: (postId: string) => Promise<any>;
     UpdatePost: (updatePostDetails: VM.IPost, postId: string) => Promise<any>;
     GetUserProfile: (userId: string) => Promise<VM.IUserProfile>;
@@ -40,4 +41,6 @@ export declare class UserAuthService extends BaseService {
     GetUsers: (searchUserObj: VM.ISearchUser) => Promise<any>;
     SearchPosts: (searchPosts: VM.ISearch) => Promise<any>;
     SearchChallenge: (SearchChallenge: VM.ISearch) => Promise<any>;
+    UserReportOnPost: (userId: string, reportDetails: VM.IUserPostReport) => Promise<any>;
+    GetUserReportedPosts: (userId: string) => Promise<any>;
 }

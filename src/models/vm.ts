@@ -65,4 +65,15 @@ export namespace VM {
     export interface ISearch extends IPaginate {
         keyword: string;
     }
+
+    export interface IUserPostReport {
+        postId: string;
+        userReport: string;
+    }
+
+    export interface IUserPostCommentReport {
+        postId: string;
+        userReport: string;
+        commentId: string;
+    }
 }

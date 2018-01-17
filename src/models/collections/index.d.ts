@@ -10,6 +10,11 @@ export interface INinosDB {
 
 }
 
+export interface INinosReviewDB {
+    ReportedPosts: Model<IReportedPosts>;
+    ReportedPostComments: Model<IReportedPostComments>;
+}
+
 //incomplete one
 export interface IPost extends Document {
     userId?: string;
@@ -81,7 +86,24 @@ export interface IPostComments extends Document {
 
 export interface IChallenges extends Document {
     title: string;
-    image?:string;
-    description?:string;
+    image?: string;
+    description?: string;
     tags?: string[];
+}
+
+/* ReviewDB Section */
+
+export interface IReportedPosts extends Document {
+    postId: string;
+    userId: string;
+    userReport: string;
+    reportedDate: Date;
+}
+
+export interface IReportedPostComments extends Document {
+    postId: string;
+    commentId: string;
+    userId: string;
+    userReport: string;
+    reportedDate: Date;
 }

@@ -249,7 +249,7 @@ export class AuthController extends BaseController {
 
             var user = this.GetUser(req);
 
-            var result = await this.authService.GetPosts(searchRequest);
+            var result = await this.authService.GetPosts(searchRequest, user.userId);
 
             if (!this._.isNil(result)) {
                 if (!this._.isNil(user)) {
@@ -885,7 +885,9 @@ export class AuthController extends BaseController {
                 size: Number(req.query.size || 10)
             };
 
-            var result = await this.authService.GetPostComments(postId, searchRequest);
+            var userId = this.GetUser(req).userId;
+
+            var result = await this.authService.GetPostComments(postId, searchRequest, userId);
 
             if (!this._.isNil(result)) {
                 return res.send(200, {
@@ -1129,4 +1131,68 @@ export class AuthController extends BaseController {
             this.ErrorResult(error, req, res, next);
         }
     }
+
+    public UserReportOnPost = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var userId = this.GetUser(req).userId;
+
+            if (this._.isNil(userId)) {
+                throw `User not logged in.`;
+            }
+
+            var reportDetails = <VM.IUserPostReport>req.body;
+
+            if (this._.isNil(reportDetails.postId) || this._.isNil(reportDetails.userReport)) {
+                throw `No postId/userReport is sent.`;
+            }
+
+            var result = await this.authService.UserReportOnPost(userId, reportDetails);
+
+            if (result) {
+                return res.send({
+                    success: true,
+                    message: `Added user report on post successfully`
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to add user report on post`
+                });
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
+
+    public UserReportOnPostComment = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var userId = this.GetUser(req).userId;
+
+            if (this._.isNil(userId)) {
+                throw `User not logged in.`;
+            }
+
+            var reportDetails = <VM.IUserPostCommentReport>req.body;
+
+            if (this._.isNil(reportDetails.postId) || this._.isNil(reportDetails.commentId) || this._.isNil(reportDetails.userReport)) {
+                throw `No postId/commentId/userReport is sent.`;
+            }
+
+            var result = await this.authService.UserReportOnPostComment(userId, reportDetails);
+
+            if (result) {
+                return res.send({
+                    success: true,
+                    message: `Added user report on post comment successfully`
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to add user report on post comment`
+                });
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
 }

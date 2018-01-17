@@ -58,6 +58,8 @@ export class RoutesManager {
         this.restify.get("/search-posts", authCheck, registerController.SearchPosts);
         this.restify.get("/search-challenge", authCheck, registerController.SearchChallenge);
 
+        this.restify.post("/report-post", authCheck, registerController.UserReportOnPost);
+
         this.log.info("Routes Register Complete ✔");
     }
 }

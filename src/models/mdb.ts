@@ -20,6 +20,18 @@ if (mdbAuthConfig.replSetName.trim().length > 0) {
 }
 var conn = mongoose.createConnection(`mongodb://${reviewHosts}/${mdbAuthConfig.database}?ssl=${mdbAuthConfig.ssl}&authSource=admin`, authOptions);
 
+var mdbReviewConfig = config.get("mdb-ninosreview");
+var hosts = mdbReviewConfig.hosts.join(",");
+
+var reviewOptions: mongoose.ConnectionOptions = {
+    user: mdbReviewConfig.username,
+    pass: mdbReviewConfig.password,
+    useMongoClient: true
+};
+
+var conn2 = mongoose.createConnection(`mongodb://${hosts}/${mdbReviewConfig.database}?ssl=${mdbReviewConfig.ssl}&authSource=admin`, reviewOptions);
+
+
 var authSchema = new mongoose.Schema({
     parentName: {
         type: String,
@@ -290,6 +302,59 @@ var challengesSchema = new mongoose.Schema({
     }
 }, { timestamps: {}, versionKey: false })
 
+/* ReviewDB Section */
+
+var reportedPostsSchema = new mongoose.Schema({
+    postId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    userId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    userReport: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    reportedDate: {
+        type: Date,
+        required: true,
+        trim: true
+    }
+}, { versionKey: false })
+
+var reportedPostCommentsSchema = new mongoose.Schema({
+    postId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    userId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    userReport: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    commentId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    reportedDate: {
+        type: Date,
+        required: true,
+        trim: true
+    }
+})
+
 export const mdbModels: dbTypes.INinosDB = {
     Auth: conn.model<dbTypes.IAuth>("Auth", authSchema),
     Post: conn.model<dbTypes.IPost>("Post", postSchema.index({ title: "text", tags: "text" }, { name: "search-posts-index" })),
@@ -299,3 +364,7 @@ export const mdbModels: dbTypes.INinosDB = {
     Challenges: conn.model<dbTypes.IChallenges>("Challenges", challengesSchema.index({ title: "text", description: "text", tags: "text" }, { name: "search-challenge-index" }))
 }
 
+export const mdbReviewModels: dbTypes.INinosReviewDB = {
+    ReportedPosts: conn2.model<dbTypes.IReportedPosts>("ReportedPosts", reportedPostsSchema),
+    ReportedPostComments: conn2.model<dbTypes.IReportedPostComments>("ReportedPostComments", reportedPostCommentsSchema)
+}
