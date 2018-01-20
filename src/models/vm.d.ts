@@ -62,4 +62,9 @@ export declare namespace VM {
         postId: string;
         userReport: string;
     }
+    interface IUserPostCommentReport {
+        postId: string;
+        userReport: string;
+        commentId: string;
+    }
 }

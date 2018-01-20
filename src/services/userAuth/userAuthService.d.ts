@@ -6,6 +6,7 @@ export declare class UserAuthService extends BaseService {
     private usersLastLogin;
     private postClapsByUser;
     private reportPostsByUser;
+    private reportPostCommentByUser;
     constructor();
     CheckUser: (userId: string) => Promise<any>;
     CreateUser: (userInfo: dbTypes.IAuth) => Promise<any>;
@@ -31,7 +32,7 @@ export declare class UserAuthService extends BaseService {
     UpdateClapsCountForPost: (postId: string, count: number) => Promise<any>;
     UpdatePostComment: (postId: string, userId: string, updatePostComment: VM.IPostCommentUpdate) => Promise<any>;
     DeletePostComment: (commentId: string, postId: string, userId: string) => Promise<any>;
-    GetPostComments: (postId: string, searchRequest: VM.IPaginate) => Promise<any>;
+    GetPostComments: (postId: string, searchRequest: VM.IPaginate, userId: string) => Promise<any>;
     AddPostClaps: (postId: string, userId: string) => Promise<any>;
     GetClapsForPostCount: (postId: string) => Promise<any>;
     RemovePostClaps: (postId: string, userId: string) => Promise<any>;
@@ -43,4 +44,6 @@ export declare class UserAuthService extends BaseService {
     SearchChallenge: (SearchChallenge: VM.ISearch) => Promise<any>;
     UserReportOnPost: (userId: string, reportDetails: VM.IUserPostReport) => Promise<any>;
     GetUserReportedPosts: (userId: string) => Promise<any>;
+    UserReportOnPostComment: (userId: string, postCommentReport: VM.IUserPostCommentReport) => Promise<any>;
+    GetUserReportedPostComments: (userId: string, postId: string) => Promise<any>;
 }

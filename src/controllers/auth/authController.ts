@@ -249,7 +249,13 @@ export class AuthController extends BaseController {
 
             var user = this.GetUser(req);
 
-            var result = await this.authService.GetPosts(searchRequest, user.userId);
+            var currentUserId;
+
+            if (!this._.isNil(user)) {
+                currentUserId = user.userId;
+            }
+
+            var result = await this.authService.GetPosts(searchRequest, currentUserId);
 
             if (!this._.isNil(result)) {
                 if (!this._.isNil(user)) {
