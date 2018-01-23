@@ -217,7 +217,7 @@ var mcqsolution = new mongoose.Schema({
     },
     answer: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
     status: {

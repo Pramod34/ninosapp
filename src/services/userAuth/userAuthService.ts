@@ -223,7 +223,7 @@ export class UserAuthService extends BaseService {
 
             var mcqSolutions = quiz.questions.map(x => {
                 return <dbTypes.IMCQSolution>{
-                    questionId: x._id.toHexString(),
+                    questionId: x._id,
                     status: "skipped"
                 };
             });
@@ -248,7 +248,7 @@ export class UserAuthService extends BaseService {
 
     public GetQuizQuestions = async (quizId: string): Promise<any> => {
         try {
-            var queryResult = await mdbModels.Quizzes.find({ _id: quizId }).select("questions").exec()
+            var queryResult: any = await mdbModels.Quizzes.findOne({ _id: quizId }).select("questions").exec()
 
             return queryResult;
         } catch (error) {
@@ -260,7 +260,7 @@ export class UserAuthService extends BaseService {
         try {
             var quizQuestionStatus = "incorrect";
 
-            var quizQuestions = await mdbModels.Quizzes.findOne({ _id: quizId, questions: { $elemMatch: { _id: questionId } } }).select("questions.solution").exec();
+            var quizQuestions = await mdbModels.Quizzes.findOne({ _id: quizId, questions: { $elemMatch: { _id: questionId } } }).select("questions._id questions.solution").exec();
 
             if (!this._.isNil(quizQuestions)) {
                 var questions = quizQuestions.questions;
@@ -268,7 +268,8 @@ export class UserAuthService extends BaseService {
                 var solution;
 
                 questions.forEach(x => {
-                    solution = x.solution;
+                    if (x._id.toHexString() === questionId)
+                        solution = x.solution;
                 })
 
                 var obj = {};
@@ -276,10 +277,15 @@ export class UserAuthService extends BaseService {
                 if (!this._.isNil(submittedInfo.answer)) {
                     if (solution === submittedInfo.answer) {
                         quizQuestionStatus = "correct";
-                    }
-                    obj = {
-                        "mcqSolution.$.status": quizQuestionStatus,
-                        "mcqSolution.$.answer": submittedInfo.answer
+
+                        obj = {
+                            "mcqSolution.$.status": quizQuestionStatus,
+                            "mcqSolution.$.answer": submittedInfo.answer
+                        }
+                    } else {
+                        obj = {
+                            "mcqSolution.$.status": quizQuestionStatus
+                        }
                     }
                 } else {
                     quizQuestionStatus = "skipped";
@@ -294,14 +300,14 @@ export class UserAuthService extends BaseService {
                     }
                 }
 
-                var evaluatedQuestion = await mdbModels.Evalution.findOneAndUpdate(
-                    {
-                        _id: submittedInfo.evalutionId, userId: userId, "mcqSolution.questionId": questionId, quizId: quizId
-                    }, obj, {
-                        upsert: true, "new": true
-                    }).exec();
+                var evalu = submittedInfo.evalutionId;
+
+                var evaluatedQuestion = await mdbModels.Evalution.findOneAndUpdate({
+                    _id: evalu, userId: userId, "mcqSolution.questionId": questionId, quizId: quizId
+                }, { "$set": obj }, { upsert: true, "new": true }).exec();
 
                 return evaluatedQuestion;
+
             } else {
                 throw `No quiz found with Id ${quizId}`;
             }

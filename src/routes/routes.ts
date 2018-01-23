@@ -37,11 +37,14 @@ export class RoutesManager {
 
         this.restify.get("/quizzes", authCheck, registerController.GetQuizzes);
         this.restify.put("/quizzes/:quizId/start", authCheck, registerController.StartQuiz);
+        // get all questions in an array of quiz
         this.restify.get("/quizzes/:quizId/questions", authCheck, registerController.GetQuizQuestions);
-
+        // click on after quiz submitted
         this.restify.post("/quizzes/:quizId/evaluate", authCheck, registerController.EvaluateResult);
 
+        // to verify each question solution
         this.restify.put("/quizzes/:quizId/questions/:questionId/mcq", authCheck, registerController.UpdateSolutionForQuizQuestion);
+        // total report card.
         this.restify.get("/quizzes/:quizId/user/:userId/evalutions", authCheck, registerController.GetUserEvaluationResult);
 
         this.restify.del("/posts/:postId", authCheck, registerController.DeletePost);

@@ -574,10 +574,13 @@ export class AuthController extends BaseController {
             var results = await this.authService.GetQuizQuestions(quizId);
 
             if (!this._.isNil(results)) {
+
+                var question = results._doc.questions;
+
                 return res.send(200, {
                     success: true,
                     message: `Quiz questions retrived successfully`,
-                    questions: results.questions
+                    questions: question
                 })
             } else {
                 return res.send({
@@ -633,7 +636,7 @@ export class AuthController extends BaseController {
         try {
             var user = this.GetUser(req);
 
-            var evaluationId = req.body.evaluationId;
+            var evaluationId = req.body.evalutionId;
             var quizId = req.params.quizId;
 
             if (this._.isNil(user)) {
@@ -679,7 +682,7 @@ export class AuthController extends BaseController {
 
             var result = await this.authService.GetUserEvaluationResult(userId, quizId);
 
-            if (this._.isNil(result)) {
+            if (!this._.isNil(result)) {
                 return res.send(200, {
                     success: true,
                     message: `Fetched user evaluation result successfully`,
