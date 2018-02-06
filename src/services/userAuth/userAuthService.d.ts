@@ -46,4 +46,5 @@ export declare class UserAuthService extends BaseService {
     GetUserReportedPosts: (userId: string) => Promise<any>;
     UserReportOnPostComment: (userId: string, postCommentReport: VM.IUserPostCommentReport) => Promise<any>;
     GetUserReportedPostComments: (userId: string, postId: string) => Promise<any>;
+    isQuizTaken: (userId: string, quizId: string) => Promise<any>;
 }

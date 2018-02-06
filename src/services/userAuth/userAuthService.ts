@@ -727,4 +727,18 @@ export class UserAuthService extends BaseService {
             this.rF.Disconnect();
         }
     };
+
+    public isQuizTaken = async (userId: string, quizId: string): Promise<any> => {
+        try {
+            var query = await mdbModels.Evalution.findOne({ completedDate: { $exists: true }, userId: userId, quizId: quizId }).exec();
+
+            if (!this._.isNil(query)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
 }

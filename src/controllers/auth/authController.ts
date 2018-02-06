@@ -514,6 +514,19 @@ export class AuthController extends BaseController {
             var result = await this.authService.GetQuizzes(age);
 
             if (!this._.isNil(result)) {
+                if (!this._.isNil(user)) {
+
+                    var finalQuizResults = await Promise.all(result.map(async (x: any) => {
+                        x = x.toObject();
+                        x.isQuizTaken = await this.authService.isQuizTaken(user.userId, x._id);
+                        return x;
+                    }));
+                    return res.send({
+                        success: true,
+                        message: `Posts retrived successfully`,
+                        quizeData: finalQuizResults || []
+                    });
+                }
                 return res.send(200, {
                     success: true,
                     message: `User quizzes retrived successfully`,
