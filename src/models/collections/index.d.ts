@@ -73,7 +73,7 @@ export interface IEvalution extends Document {
     totalScore: number;
     acquiredScore: number;
     userId: string;
-    mcqSolution: [IMCQSolution];
+    mcqSolution?: [IMCQSolution];
     completedDate: Date;
 }
 

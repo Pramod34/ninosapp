@@ -67,4 +67,13 @@ export declare namespace VM {
         userReport: string;
         commentId: string;
     }
+    interface IMCQSolution {
+        questionId: string;
+        answer?: string;
+        status: string;
+    }
+    interface IEvaluateResultParams {
+        evalutionId: string;
+        mcqSolution: [IMCQSolution];
+    }
 }

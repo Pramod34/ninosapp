@@ -23,7 +23,7 @@ export declare class UserAuthService extends BaseService {
     StartQuiz: (userId: string, quizId: string) => Promise<any>;
     GetQuizQuestions: (quizId: string) => Promise<any>;
     UpdateSolutionForQuizQuestion: (userId: string, quizId: string, questionId: string, submittedInfo: VM.IUpdateQuizAnswer) => Promise<any>;
-    EvaluateQuizResult: (userId: string, quizId: string, evaluationId: string) => Promise<any>;
+    EvaluateQuizResult: (userId: string, quizId: string, evaluateResultDetails: VM.IEvaluateResultParams) => Promise<any>;
     GetUserEvaluationResult: (userId: string, quizId: string) => Promise<any>;
     GetPostAuthorID: (postId: string) => Promise<any>;
     DeletePost: (postId: string, userId: string) => Promise<any>;

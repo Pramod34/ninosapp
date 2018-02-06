@@ -547,10 +547,13 @@ export class AuthController extends BaseController {
 
             var result = await this.authService.StartQuiz(user.userId, quizId);
 
+            console.log(result);
+
             if (!this._.isNil(result)) {
                 return res.send(200, {
                     success: true,
-                    message: `Quiz started successfully`
+                    message: `Quiz started successfully`,
+                    quizStarted: result
                 });
             } else {
                 return res.send({
@@ -636,7 +639,8 @@ export class AuthController extends BaseController {
         try {
             var user = this.GetUser(req);
 
-            var evaluationId = req.body.evalutionId;
+            var evaluateResultDetails = <VM.IEvaluateResultParams>req.body;
+
             var quizId = req.params.quizId;
 
             if (this._.isNil(user)) {
@@ -647,11 +651,11 @@ export class AuthController extends BaseController {
                 throw `No quizId sent`;
             }
 
-            if (this._.isNil(evaluationId)) {
+            if (this._.isNil(evaluateResultDetails.evalutionId)) {
                 throw `No evaluationId sent`;
             }
 
-            var result = await this.authService.EvaluateQuizResult(user.userId, quizId, evaluationId);
+            var result = await this.authService.EvaluateQuizResult(user.userId, quizId, evaluateResultDetails);
 
             if (!this._.isNil(result)) {
                 return res.send(200, {

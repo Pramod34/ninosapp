@@ -209,7 +209,7 @@ export class UserAuthService extends BaseService {
 
     public StartQuiz = async (userId: string, quizId: string): Promise<any> => {
         try {
-            var startedQuiz = await mdbModels.Evalution.findOne({ completedAt: { $exists: false }, userId: userId, quizId: quizId }).exec();
+            var startedQuiz = await mdbModels.Evalution.findOne({ completedDate: { $exists: false }, userId: userId, quizId: quizId }).exec();
 
             if (!this._.isNil(startedQuiz)) {
                 throw `You have not completed the quiz ${quizId}`;
@@ -221,12 +221,12 @@ export class UserAuthService extends BaseService {
                 throw `No quiz found with id ${quiz}`;
             }
 
-            var mcqSolutions = quiz.questions.map(x => {
-                return <dbTypes.IMCQSolution>{
-                    questionId: x._id,
-                    status: "skipped"
-                };
-            });
+            // var mcqSolutions = quiz.questions.map(x => {
+            //     return <dbTypes.IMCQSolution>{
+            //         questionId: x._id,
+            //         status: "skipped"
+            //     };
+            // });
 
             var totalScore = quiz.questions.length * 2;
 
@@ -235,7 +235,7 @@ export class UserAuthService extends BaseService {
                 quizId: quizId,
                 totalScore: totalScore,
                 acquiredScore: 0,
-                mcqSolution: mcqSolutions
+                // mcqSolution: mcqSolutions
             };
 
             var evalutionReport = await mdbModels.Evalution.create(evalution);
@@ -316,23 +316,23 @@ export class UserAuthService extends BaseService {
         }
     };
 
-    public EvaluateQuizResult = async (userId: string, quizId: string, evaluationId: string): Promise<any> => {
+    public EvaluateQuizResult = async (userId: string, quizId: string, evaluateResultDetails: VM.IEvaluateResultParams): Promise<any> => {
         try {
-            var quizEvaluation = await mdbModels.Evalution.findOne({ userId: userId, quizId: quizId, _id: evaluationId }).exec();
+            // var quizEvaluation = await mdbModels.Evalution.findOne({ userId: userId, quizId: quizId, _id: evaluateResultDetails.evalutionId }).exec();
 
-            if (this._.isNil(quizEvaluation)) {
-                throw `No quiz evaluation found`;
-            }
+            // if (this._.isNil(quizEvaluation)) {
+            //     throw `No quiz evaluation found`;
+            // }
 
             var score = 0;
 
-            quizEvaluation.mcqSolution.forEach(x => {
+            evaluateResultDetails.mcqSolution.forEach(x => {
                 if (x.status === "correct") {
                     score = score + 2;
                 }
             });
 
-            var updateQuizScore = await mdbModels.Evalution.findOneAndUpdate({ _id: evaluationId, userId: userId, quizId: quizId }, { $set: { acquiredScore: score, completedDate: new Date() } }, { upsert: true, new: true }).exec();
+            var updateQuizScore = await mdbModels.Evalution.findOneAndUpdate({ _id: evaluateResultDetails.evalutionId, userId: userId, quizId: quizId }, { $push: { mcqSolution: evaluateResultDetails.mcqSolution }, $set: { acquiredScore: score, completedDate: new Date() } }, { upsert: true, new: true }).exec();
 
             return updateQuizScore;
         } catch (error) {
