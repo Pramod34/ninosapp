@@ -523,7 +523,7 @@ export class AuthController extends BaseController {
                     }));
                     return res.send({
                         success: true,
-                        message: `Posts retrived successfully`,
+                        message: `User quizzes retrived successfully`,
                         quizeData: finalQuizResults || []
                     });
                 }
