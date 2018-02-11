@@ -3,6 +3,7 @@ import { mdbModels, mdbReviewModels } from "../../models/mdb";
 import { BaseService } from "../../policies/baseService";
 import { RedisFactory } from "../../factories/redisFactory";
 import { VM } from "../../models/vm";
+import { driver } from "../../factories/neo4jFactory";
 
 export class UserAuthService extends BaseService {
 
@@ -129,12 +130,18 @@ export class UserAuthService extends BaseService {
         }
     };
 
-    public GetUserProfile = async (userId: string): Promise<VM.IUserProfile> => {
+    public GetUserProfile = async (userId: string, userId2: any): Promise<VM.IUserProfile> => {
         try {
             var userProfile: any = {};
             var userDetails = await mdbModels.Auth.findOne({ userId: userId }).select("childName city aboutus").exec();
             if (!this._.isNil(userDetails)) {
                 var usersPostCount = await mdbModels.Post.count({ userId: userId }).exec();
+
+                var isFollowing = false;
+
+                if (!this._.isNil(userId2)) {
+                    isFollowing = await this.IsFollowingUser(userId2, userId);
+                }
 
                 userProfile.childName = userDetails.childName;
                 userProfile.userId = userId;
@@ -142,6 +149,7 @@ export class UserAuthService extends BaseService {
                 userProfile.postCount = usersPostCount;
                 userProfile.followersCount = 0;
                 userProfile.followingCount = 0;
+                userProfile.isFollowing = isFollowing;
 
                 if (!this._.isNil(userDetails.city)) {
                     userProfile.city = userDetails.city;
@@ -740,5 +748,80 @@ export class UserAuthService extends BaseService {
         } catch (error) {
             throw error;
         }
-    }
+    };
+
+    public FollowUser = async (userId: String, userIdToFollow: String): Promise<any> => {
+        let session;
+        try {
+            session = driver.session();
+
+            var followKey = `${userId}-TO-${userIdToFollow}`;
+
+            var addFollows = `MATCH (a:User {UserID: '${userId}'}), (b:User {UserID: '${userIdToFollow}'}) MERGE (a)-[r:Follows {FollowKey: '${followKey}'}]->(b) ON CREATE SET r.Since = timestamp()`;
+
+            var follows = await session.run(addFollows);
+
+            session.close();
+
+            if (follows.summary.updateStatistics._stats.relationshipsCreated > 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+
+        } catch (error) {
+            this.log.error("following user", error); throw error;
+        } finally {
+            if (!this._.isNil(session))
+                session.close();
+        }
+    };
+
+    public UnFollowUser = async (userId: String, userIdToUnfollow: String): Promise<any> => {
+        let session;
+        try {
+            session = driver.session();
+
+            var unFollow = `MATCH (:User) - [r:Follows {FollowKey: '${userId}-TO-${userIdToUnfollow}'}] -> (:User) DELETE r`;
+            var unFollows = await session.run(unFollow);
+            session.close();
+
+            if (unFollows.summary.updateStatistics._stats.relationshipsDeleted > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            this.log.error("unfollow user", error); throw error;
+        } finally {
+            if (!this._.isNil(session))
+                session.close();
+        }
+    };
+
+    public IsFollowingUser = async (userId: string, followingUserId: string): Promise<any> => {
+        let session;
+
+        try {
+            if (userId !== followingUserId) {
+                session = driver.session();
+
+                var isFollowing = `MATCH (:User {UserID: '${userId}'}) - [r:Follows] -> (:User{UserID: '${followingUserId}'}) RETURN r`;
+                var response = await session.run(isFollowing);
+                session.close();
+
+                if (response.records.length > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } catch (error) {
+            this.log.error("", error); throw error;
+        } finally {
+            if (!this._.isNil(session))
+                session.close();
+        }
+    };
 }

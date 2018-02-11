@@ -63,6 +63,9 @@ export class RoutesManager {
 
         this.restify.post("/report-post", authCheck, registerController.UserReportOnPost);
 
+        this.restify.put("/follow/:followingId", authCheck, registerController.FollowUser);
+        this.restify.del("/follow/:followingId", authCheck, registerController.UnFollowUser)
+
         this.log.info("Routes Register Complete ✔");
     }
 }

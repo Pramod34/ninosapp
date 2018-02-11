@@ -366,7 +366,7 @@ export class AuthController extends BaseController {
                 throw `No user authorized`;
             }
 
-            var profile = await this.authService.GetUserProfile(user.userId);
+            var profile = await this.authService.GetUserProfile(user.userId, undefined);
 
             if (!this._.isNil(profile)) {
                 return res.send(200, {
@@ -387,13 +387,20 @@ export class AuthController extends BaseController {
 
     public GetUserPublicProfile = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
         try {
-            var userId = req.params.userId;
+            var publicUserId = req.params.userId;
 
             if (this._.isNil(userId)) {
                 throw `No userId sent`;
             }
 
-            var result = await this.authService.GetUserProfile(userId);
+            var user = this.GetUser(req);
+            var userId;
+
+            if (!this._.isNil(user)) {
+                userId = user.userId;
+            }
+
+            var result = await this.authService.GetUserProfile(publicUserId, userId);
 
             if (!this._.isNil(result)) {
                 return res.send(200, {
@@ -1061,6 +1068,8 @@ export class AuthController extends BaseController {
 
     public GetUsers = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
         try {
+            var user = this.GetUser(req);
+
             var searchUserInfo = <VM.ISearchUser>req.query;
 
             if (this._.isNil(searchUserInfo.userName)) {
@@ -1076,6 +1085,19 @@ export class AuthController extends BaseController {
             var result = await this.authService.GetUsers(searchUserObj);
 
             if (!this._.isNil(result)) {
+                if (!this._.isNil(user)) {
+
+                    var finalUsersResults = await Promise.all(result.map(async (x: any) => {
+                        x = x.toObject();
+                        x.isFollowing = await this.authService.IsFollowingUser(user.userId, x.userId);
+                        return x;
+                    }));
+                    return res.send({
+                        success: true,
+                        message: `Users retrived successfully`,
+                        users: finalUsersResults || []
+                    });
+                }
                 return res.send(200, {
                     success: true,
                     message: `Users retrived successfully`,
@@ -1221,4 +1243,60 @@ export class AuthController extends BaseController {
             this.ErrorResult(error, req, res, next);
         }
     };
+
+    public FollowUser = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var user = this.GetUser(req);
+            var userId = user.userId;
+            var userIDToFollow = req.params.followingId;
+
+            if (userId === userIDToFollow) {
+                throw `Can't follow yourself. UserId - ${userIDToFollow}.`;
+            }
+
+            var resp = await this.authService.FollowUser(userId, userIDToFollow);
+
+            if (resp) {
+                return res.send({
+                    success: true,
+                    message: `User(${userId}) now follows user(${userIDToFollow}).`,
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to follow user(${userIDToFollow}).`
+                });
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
+
+    public UnFollowUser = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var user = this.GetUser(req);
+            var userId = user.userId;
+            var userIdToUnFollow = req.params.followingId;
+
+            if (userId === userIdToUnFollow) {
+                throw `Can't Unfollow yourself. UserId - ${userIdToUnFollow}.`;
+            }
+
+            var resp = await this.authService.UnFollowUser(userId, userIdToUnFollow);
+
+            if (resp) {
+                return res.send({
+                    success: true,
+                    message: `User(${userId}) Unfollowed user(${userIdToUnFollow}).`,
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to unfollow user(${userIdToUnFollow}).`
+                });
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    }
 }
