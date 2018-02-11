@@ -542,7 +542,7 @@ export class UserAuthService extends BaseService {
     public GetChallenges = async (paginate: VM.IPaginate): Promise<any> => {
         try {
             var query = await mdbModels.Challenges.find({})
-                .select("title")
+                .select("title imageUrl tags")
                 .skip(paginate.from)
                 .limit(paginate.size)
                 .sort({ "createdAt": -1 })
