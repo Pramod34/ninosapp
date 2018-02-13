@@ -101,6 +101,14 @@ export class AuthController extends BaseController {
                     userDetails.phoneNo = createdUser.phoneNo;
                 }
 
+                var neo4jUser = await this.authService.CreateNeoUser(userDetails);
+
+                if (neo4jUser) {
+                    console.log("Neo User created successfully");
+                } else {
+                    throw `Neo4J user failed to create`;
+                }
+
                 await this.authService.SetUserLastLogin(userDetails.userId);
 
                 return res.send(200, {

@@ -824,4 +824,27 @@ export class UserAuthService extends BaseService {
                 session.close();
         }
     };
+
+    public CreateNeoUser = async (userInfo: any): Promise<any> => {
+        let session;
+        try {
+            session = driver.session();
+
+            var userQuery = `CREATE (n:User) SET n.ChildName = ${userInfo.childName}, n.UserID = ${userInfo.userId}, n.DOB = ${userInfo.DOB} RETURN n`;
+            let userCreated = await session.run(userQuery);
+
+            session.close();
+
+            if (!this._.isNil(userCreated) && userCreated.records.length > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            throw error;
+        } finally {
+            if (!this._.isNil(session))
+                session.close();
+        }
+    };
 }
