@@ -50,5 +50,6 @@ export declare class UserAuthService extends BaseService {
     FollowUser: (userId: String, userIdToFollow: String) => Promise<any>;
     UnFollowUser: (userId: String, userIdToUnfollow: String) => Promise<any>;
     IsFollowingUser: (userId: string, followingUserId: string) => Promise<any>;
+
     CreateNeoUser: (userInfo: any) => Promise<any>;
 }
