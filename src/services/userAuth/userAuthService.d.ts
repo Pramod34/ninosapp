@@ -18,6 +18,7 @@ export declare class UserAuthService extends BaseService {
     GetUserProfile: (userId: string, userId2: any) => Promise<VM.IUserProfile>;
     GetUserDetails: (userId: any) => Promise<any>;
     UpdateUserDetails: (userId: string, userInfo: VM.IUserInfo) => Promise<any>;
+    UpdateUserName: (userId: string, childName: string) => Promise<any>;
     GetUserAge: (dob: number) => number;
     GetQuizzes: (age: number) => Promise<any>;
     StartQuiz: (userId: string, quizId: string) => Promise<any>;
@@ -50,6 +51,5 @@ export declare class UserAuthService extends BaseService {
     FollowUser: (userId: String, userIdToFollow: String) => Promise<any>;
     UnFollowUser: (userId: String, userIdToUnfollow: String) => Promise<any>;
     IsFollowingUser: (userId: string, followingUserId: string) => Promise<any>;
-
     CreateNeoUser: (userInfo: any) => Promise<any>;
 }

@@ -181,6 +181,33 @@ export class UserAuthService extends BaseService {
         }
     };
 
+    public UpdateUserName = async (userId: string, childName: string): Promise<any> => {
+        let session;
+        try {
+            await mdbModels.Post.update({ userId: userId }, { userName: childName }, { upsert: true }).exec();
+            await mdbModels.PostComments.update({ userId: userId }, { userName: childName }, { upsert: true }).exec();
+
+            var params = {
+                userId: userId,
+                childName: childName
+            }
+
+            var neoQuery = `MATCH (n:User) WHERE n.UserID = {userId} SET n.ChildName = {childName} RETURN n`
+
+            session = driver.session();
+            var queryResult = await session.run(neoQuery, params);
+            session.close();
+
+            if (this._.isNil(queryResult)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            throw error;
+        }
+    };
+
     public GetUserAge = (dob: number) => {
         try {
             var today = new Date();
@@ -830,7 +857,7 @@ export class UserAuthService extends BaseService {
         try {
             session = driver.session();
 
-            var userQuery = `CREATE (n:User) SET n.ChildName = ${userInfo.childName}, n.UserID = ${userInfo.userId}, n.DOB = ${userInfo.DOB} RETURN n`;
+            var userQuery = `CREATE (n:User) SET n.ChildName = '${userInfo.childName}', n.UserID = '${userInfo.userId}', n.DOB = ${userInfo.DOB} RETURN n`;
             let userCreated = await session.run(userQuery);
 
             session.close();

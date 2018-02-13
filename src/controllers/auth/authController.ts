@@ -397,7 +397,7 @@ export class AuthController extends BaseController {
         try {
             var publicUserId = req.params.userId;
 
-            if (this._.isNil(userId)) {
+            if (this._.isNil(publicUserId)) {
                 throw `No userId sent`;
             }
 
@@ -499,10 +499,18 @@ export class AuthController extends BaseController {
             var result = await this.authService.UpdateUserDetails(user.userId, userInfo);
 
             if (!this._.isNil(result)) {
-                return res.send(200, {
-                    success: true,
-                    message: `Updated user details successfully`
-                });
+                var response = await this.authService.UpdateUserName(user.userId, userInfo.childName);
+                if (response) {
+                    return res.send(200, {
+                        success: true,
+                        message: `Updated user details successfully`
+                    });
+                } else {
+                    return res.send(200, {
+                        success: false,
+                        message: `Failed to update user details in neo4j`
+                    });
+                }
             } else {
                 return res.send({
                     success: false,
