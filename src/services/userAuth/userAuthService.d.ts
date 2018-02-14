@@ -16,6 +16,7 @@ export declare class UserAuthService extends BaseService {
     GetPost: (postId: string) => Promise<any>;
     UpdatePost: (updatePostDetails: VM.IPost, postId: string) => Promise<any>;
     GetUserProfile: (userId: string, userId2: any) => Promise<VM.IUserProfile>;
+    GetFollowerOrFollowingCount: (userId: string) => Promise<any>;
     GetUserDetails: (userId: any) => Promise<any>;
     UpdateUserDetails: (userId: string, userInfo: VM.IUserInfo) => Promise<any>;
     UpdateUserName: (userId: string, childName: string) => Promise<any>;

@@ -143,12 +143,14 @@ export class UserAuthService extends BaseService {
                     isFollowing = await this.IsFollowingUser(userId2, userId);
                 }
 
+                var followersAndFollowingCount = await this.GetFollowerOrFollowingCount(userId);
+
                 userProfile.childName = userDetails.childName;
                 userProfile.userId = userId;
                 userProfile.aboutYou = userDetails.aboutus;
                 userProfile.postCount = usersPostCount;
-                userProfile.followersCount = 0;
-                userProfile.followingCount = 0;
+                userProfile.followersCount = followersAndFollowingCount.followersCount;
+                userProfile.followingCount = followersAndFollowingCount.followingsCount;
                 userProfile.isFollowing = isFollowing;
 
                 if (!this._.isNil(userDetails.city)) {
@@ -160,6 +162,44 @@ export class UserAuthService extends BaseService {
             throw error;
         }
     };
+
+    public GetFollowerOrFollowingCount = async (userId: string): Promise<any> => {
+        let session;
+        try {
+            var followingsCount = 0;
+            var followersCount = 0;
+
+            var params = {
+                userId: userId
+            }
+            session = driver.session();
+            var followingQuery = `MATCH (n:User{UserID:{userId}})-[r:Follows]->() RETURN count(r)`;
+            var followingResp = await session.run(followingQuery, params);
+
+            if (followingResp.records.length > 0) {
+                followingsCount = followingResp.records[0]._fields[0].toNumber();
+            }
+
+            var followersQuery = `MATCH (n:User{UserID:{userId}})<-[r:Follows]-() RETURN count(r)`;
+            var followersResp = await session.run(followersQuery, params);
+
+            if (followersResp.records.length > 0) {
+                followersCount = followersResp.records[0]._fields[0].toNumber();
+            }
+
+            session.close();
+
+            return {
+                followingsCount: followingsCount,
+                followersCount: followersCount
+            }
+        } catch (error) {
+            throw error;
+        } finally {
+            if (!this._.isNil(session))
+                session.close();
+        }
+    }
 
     public GetUserDetails = async (userId): Promise<any> => {
         try {
@@ -205,6 +245,9 @@ export class UserAuthService extends BaseService {
             }
         } catch (error) {
             throw error;
+        } finally {
+            if (!this._.isNil(session))
+                session.close();
         }
     };
 
