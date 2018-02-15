@@ -1314,5 +1314,63 @@ export class AuthController extends BaseController {
         } catch (error) {
             this.ErrorResult(error, req, res, next);
         }
-    }
+    };
+
+    public GetFollowing = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var user = this.GetUser(req);
+
+            if (this._.isNil(user)) {
+                throw `No user logged in`;
+            }
+
+            var result = await this.authService.GetFollowing(user.userId);
+
+            if (!this._.isNil(result) && result.length > 0) {
+                res.send({
+                    success: true,
+                    message: `Following details retrived successfully`,
+                    followingList: result
+                })
+            } else {
+                res.send({
+                    success: false,
+                    message: `Failed to retrive following details`
+                })
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
+
+    public GetFollowers = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var user = this.GetUser(req);
+
+            if (this._.isNil(user)) {
+                throw `No user logged in`;
+            }
+
+            var result = await this.authService.GetFollowers(user.userId);
+
+            if (!this._.isNil(result) && result.length > 0) {
+                var finalFollowersResults = await Promise.all(result.map(async (x: any) => {
+                    x.isFollowing = await this.authService.IsFollowingUser(user.userId, x.userId);
+                    return x;
+                }));
+                return res.send({
+                    success: true,
+                    message: `Followers details retrived successfully`,
+                    followingList: finalFollowersResults || []
+                });
+            } else {
+                res.send({
+                    success: false,
+                    message: `Failed to retrive followers details`
+                })
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
 }

@@ -35,4 +35,6 @@ export declare class AuthController extends BaseController {
     UserReportOnPostComment: (req: any, res: any, next: any) => Promise<any>;
     FollowUser: (req: any, res: any, next: any) => Promise<any>;
     UnFollowUser: (req: any, res: any, next: any) => Promise<any>;
+    GetFollowing: (req: any, res: any, next: any) => Promise<any>;
+    GetFollowers: (req: any, res: any, next: any) => Promise<any>;
 }

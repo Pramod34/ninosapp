@@ -917,4 +917,69 @@ export class UserAuthService extends BaseService {
                 session.close();
         }
     };
+
+    public GetFollowers = async (userId: string): Promise<any> => {
+        let session;
+        try {
+            session = driver.session();
+
+            var params = {
+                userId: userId
+            }
+
+            var query = `MATCH (n:User{UserID:{userId}})<-[r:Follows]-(m:User) RETURN m`
+            var queryResult = await session.run(query, params);
+            session.close();
+
+            var followersList: any = [];
+
+            queryResult.records.forEach(x => {
+                followersList.push({
+                    userName: x._fields[0].properties.ChildName,
+                    userId: x._fields[0].properties.UserID
+                });
+            });
+
+            return followersList;
+
+        } catch (error) {
+            throw error;
+        } finally {
+            if (!this._.isNil(session))
+                session.close();
+        }
+    };
+
+    public GetFollowing = async (userId: string): Promise<any> => {
+        let session;
+        try {
+            session = driver.session();
+
+            var params = {
+                userId: userId
+            }
+
+            var query = `MATCH (n:User{UserID:{userId}})-[r:Follows]->(m:User) RETURN m`
+            var queryResult = await session.run(query, params);
+            session.close();
+
+            var followersList: any = [];
+
+            queryResult.records.forEach(x => {
+                followersList.push({
+                    userName: x._fields[0].properties.ChildName,
+                    userId: x._fields[0].properties.UserID,
+                    isFollowing: true
+                });
+            });
+
+            return followersList;
+
+        } catch (error) {
+            throw error;
+        } finally {
+            if (!this._.isNil(session))
+                session.close();
+        }
+    };
 }
