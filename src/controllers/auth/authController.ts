@@ -298,9 +298,24 @@ export class AuthController extends BaseController {
                 throw `No postId sent`;
             }
 
+            var user = this.GetUser(req);
+
+            var userId;
+
+            if (!this._.isNil(user)) {
+                userId = user.userId;
+            }
+
             var result = await this.authService.GetPost(postId);
 
             if (!this._.isNil(result)) {
+
+                if (!this._.isNil(userId)) {
+                    result._doc.myRating = await this.authService.GetUserClaps(userId, result._id);
+                } else {
+                    result._doc.myRating = false;
+                }
+
                 return res.send(200, {
                     success: true,
                     message: `Post ${postId} retrived successfully`,
