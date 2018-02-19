@@ -21,7 +21,8 @@ export declare class UserAuthService extends BaseService {
     UpdateUserDetails: (userId: string, userInfo: VM.IUserInfo) => Promise<any>;
     UpdateUserName: (userId: string, childName: string) => Promise<any>;
     GetUserAge: (dob: number) => number;
-    GetQuizzes: (age: number) => Promise<any>;
+    GetQuizzes: (searchRequest: VM.IQuizzesVM) => Promise<any>;
+    GetUserCompletedQuizIds: (userId: string, from: number, size: number) => Promise<any>;
     StartQuiz: (userId: string, quizId: string) => Promise<any>;
     GetQuizQuestions: (quizId: string) => Promise<any>;
     UpdateSolutionForQuizQuestion: (userId: string, quizId: string, questionId: string, submittedInfo: VM.IUpdateQuizAnswer) => Promise<any>;

@@ -522,6 +522,58 @@ export class AuthController extends BaseController {
         }
     };
 
+    public GetCompletedQuizzes = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var user = this.GetUser(req);
+
+            if (this._.isNil(user)) {
+                throw `Not authorized user`;
+            }
+
+            let searchRequest = <VM.IQuizzesVM>{
+                from: Number(req.params.from || 0),
+                size: Number(req.params.size || 10),
+                userId: user.userId
+            };
+
+            var dobNumber = Number(user.DOB);
+
+            var age = this.authService.GetUserAge(dobNumber);
+            searchRequest.age = age;
+
+            var result = await this.authService.GetCompletedQuizzes(searchRequest);
+
+            if (!this._.isNil(result)) {
+                if (!this._.isNil(user)) {
+
+                    var finalQuizResults = result.map(x => {
+                        x = x.toObject();
+                        x.isQuizTaken = true;
+                        return x;
+                    });
+
+                    return res.send({
+                        success: true,
+                        message: `User completed quizzes retrived successfully`,
+                        quizeData: finalQuizResults || []
+                    });
+                }
+                return res.send(200, {
+                    success: true,
+                    message: `User completed quizzes retrived successfully`,
+                    quizeData: result
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to get user completed quizzes`
+                });
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    }
+
     public GetQuizzes = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
         try {
             var user = this.GetUser(req);
@@ -530,20 +582,27 @@ export class AuthController extends BaseController {
                 throw `Not authorized user`;
             }
 
+            let searchRequest = <VM.IQuizzesVM>{
+                from: Number(req.params.from || 0),
+                size: Number(req.params.size || 10),
+                userId: user.userId
+            };
+
             var dobNumber = Number(user.DOB);
 
             var age = this.authService.GetUserAge(dobNumber);
+            searchRequest.age = age;
 
-            var result = await this.authService.GetQuizzes(age);
+            var result = await this.authService.GetQuizzes(searchRequest);
 
             if (!this._.isNil(result)) {
                 if (!this._.isNil(user)) {
 
-                    var finalQuizResults = await Promise.all(result.map(async (x: any) => {
+                    var finalQuizResults = result.map(x => {
                         x = x.toObject();
-                        x.isQuizTaken = await this.authService.isQuizTaken(user.userId, x._id);
+                        x.isQuizTaken = false;
                         return x;
-                    }));
+                    });
                     return res.send({
                         success: true,
                         message: `User quizzes retrived successfully`,

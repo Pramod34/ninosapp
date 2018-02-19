@@ -35,7 +35,8 @@ export class RoutesManager {
         this.restify.get("/challenges", registerController.GetChallenges);
         this.restify.get("/challenges/:challengeId", registerController.GetChallenge);
 
-        this.restify.get("/quizzes", authCheck, registerController.GetQuizzes);
+        this.restify.get("/quizzes-active", authCheck, registerController.GetQuizzes);
+        this.restify.get("/quizzes-completed", authCheck, registerController.GetCompletedQuizzes);
         this.restify.put("/quizzes/:quizId/start", authCheck, registerController.StartQuiz);
         // get all questions in an array of quiz
         this.restify.get("/quizzes/:quizId/questions", authCheck, registerController.GetQuizQuestions);

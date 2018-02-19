@@ -266,24 +266,69 @@ export class UserAuthService extends BaseService {
         }
     };
 
-    public GetQuizzes = async (age: number): Promise<any> => {
+    public GetQuizzes = async (searchRequest: VM.IQuizzesVM): Promise<any> => {
         try {
             var ageGroup;
 
-            if (age < 7) {
+            if (searchRequest.age < 7) {
                 ageGroup = "3-7"
-            } else if (age >= 7 && age < 11) {
+            } else if (searchRequest.age >= 7 && searchRequest.age < 11) {
                 ageGroup = "7-11"
-            } else if (age >= 11 && age <= 16) {
+            } else if (searchRequest.age >= 11 && searchRequest.age <= 16) {
                 ageGroup = "11-16"
             }
-            var queryResult = await mdbModels.Quizzes.find({ agegroup: ageGroup }).select("title duration agegroup").exec();
+
+            var completedQuizIds = await this.GetUserCompletedQuizIds(searchRequest.userId, searchRequest.from, searchRequest.size);
+
+            var queryResult = await mdbModels.Quizzes.find({ agegroup: ageGroup, _id: { $nin: completedQuizIds } }).select("title duration agegroup").exec();
 
             return queryResult;
         } catch (error) {
             throw error;
         }
     };
+
+    public GetCompletedQuizzes = async (searchRequest: VM.IQuizzesVM): Promise<any> => {
+        try {
+            var ageGroup;
+
+            if (searchRequest.age < 7) {
+                ageGroup = "3-7"
+            } else if (searchRequest.age >= 7 && searchRequest.age < 11) {
+                ageGroup = "7-11"
+            } else if (searchRequest.age >= 11 && searchRequest.age <= 16) {
+                ageGroup = "11-16"
+            }
+
+            var completedQuizIds = await this.GetUserCompletedQuizIds(searchRequest.userId, searchRequest.from, searchRequest.size);
+
+            var queryResult = await mdbModels.Quizzes.find({ agegroup: ageGroup, _id: { $in: completedQuizIds } }).select("title duration agegroup").exec();
+
+            return queryResult;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    public GetUserCompletedQuizIds = async (userId: string, from: number, size: number): Promise<any> => {
+        try {
+            var query = await mdbModels.Evalution.find({ userId: userId })
+                .select("quizId")
+                .skip(from)
+                .limit(size)
+                .exec();
+
+            var quizIds: string[] = [];
+
+            query.forEach(x => {
+                quizIds.push(x.quizId);
+            });
+
+            return quizIds;
+        } catch (error) {
+            throw error;
+        }
+    }
 
     public StartQuiz = async (userId: string, quizId: string): Promise<any> => {
         try {
@@ -313,6 +358,7 @@ export class UserAuthService extends BaseService {
                 quizId: quizId,
                 totalScore: totalScore,
                 acquiredScore: 0,
+                completedDate: new Date()
                 // mcqSolution: mcqSolutions
             };
 

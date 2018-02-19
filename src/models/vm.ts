@@ -87,4 +87,9 @@ export namespace VM {
         evalutionId: string;
         mcqSolution: [IMCQSolution]
     }
+
+    export interface IQuizzesVM extends IPaginate {
+        userId: string;
+        age: number;
+    }
 }
