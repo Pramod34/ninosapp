@@ -13,6 +13,7 @@ export declare class AuthController extends BaseController {
     GetUserPublicProfile: (req: any, res: any, next: any) => Promise<any>;
     GetUserDetails: (req: any, res: any, next: any) => Promise<any>;
     UpdateUserDetails: (req: any, res: any, next: any) => Promise<any>;
+    GetCompletedQuizzes: (req: any, res: any, next: any) => Promise<any>;
     GetQuizzes: (req: any, res: any, next: any) => Promise<any>;
     StartQuiz: (req: any, res: any, next: any) => Promise<any>;
     GetQuizQuestions: (req: any, res: any, next: any) => Promise<any>;
@@ -37,4 +38,8 @@ export declare class AuthController extends BaseController {
     UnFollowUser: (req: any, res: any, next: any) => Promise<any>;
     GetFollowing: (req: any, res: any, next: any) => Promise<any>;
     GetFollowers: (req: any, res: any, next: any) => Promise<any>;
+    GetNotifications: (req: any, res: any, next: any) => Promise<any>;
+    GetUnreadNotificationsCount: (req: any, res: any, next: any) => Promise<any>;
+    MarkNotificationAsRead: (req: any, res: any, next: any) => Promise<any>;
+    MarkAllNotificationsAsRead: (req: any, res: any, next: any) => Promise<any>;
 }

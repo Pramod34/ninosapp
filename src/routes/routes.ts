@@ -69,6 +69,11 @@ export class RoutesManager {
         this.restify.get("/following-users", authCheck, registerController.GetFollowing);
         this.restify.get("/followers-users", authCheck, registerController.GetFollowers);
 
+        this.restify.get("/notifications", authCheck, registerController.GetNotifications);
+        this.restify.get("/notifications-count", authCheck, registerController.GetUnreadNotificationsCount);
+        this.restify.put("/notifications/:notificationId/mark", authCheck, registerController.MarkNotificationAsRead);
+        this.restify.patch("/notifications/mark-all", authCheck, registerController.MarkAllNotificationsAsRead);
+
         this.log.info("Routes Register Complete ✔");
     }
 }

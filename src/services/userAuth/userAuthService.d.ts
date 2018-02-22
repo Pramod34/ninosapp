@@ -7,6 +7,7 @@ export declare class UserAuthService extends BaseService {
     private postClapsByUser;
     private reportPostsByUser;
     private reportPostCommentByUser;
+    private userNotificationsCount;
     constructor();
     CheckUser: (userId: string) => Promise<any>;
     CreateUser: (userInfo: dbTypes.IAuth) => Promise<any>;
@@ -22,6 +23,7 @@ export declare class UserAuthService extends BaseService {
     UpdateUserName: (userId: string, childName: string) => Promise<any>;
     GetUserAge: (dob: number) => number;
     GetQuizzes: (searchRequest: VM.IQuizzesVM) => Promise<any>;
+    GetCompletedQuizzes: (searchRequest: VM.IQuizzesVM) => Promise<any>;
     GetUserCompletedQuizIds: (userId: string, from: number, size: number) => Promise<any>;
     StartQuiz: (userId: string, quizId: string) => Promise<any>;
     GetQuizQuestions: (quizId: string) => Promise<any>;
@@ -56,4 +58,9 @@ export declare class UserAuthService extends BaseService {
     CreateNeoUser: (userInfo: any) => Promise<any>;
     GetFollowers: (userId: string) => Promise<any>;
     GetFollowing: (userId: string) => Promise<any>;
+    AddNotification: (notification: VM.INotifications) => Promise<any>;
+    GetNotifications: (userId: string, from: number, size: number) => Promise<any>;
+    GetUnReadNotificationsCount: (userId: string) => Promise<any>;
+    MarkNotificationsAsRead: (userId: string, notificationId: number) => Promise<any>;
+    MarkAllNotificationsAsRead: (userId: string) => Promise<any>;
 }

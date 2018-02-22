@@ -12,6 +12,7 @@ export class UserAuthService extends BaseService {
     private postClapsByUser: string;
     private reportPostsByUser: string;
     private reportPostCommentByUser: string;
+    private userNotificationsCount: string;
     constructor() {
         super();
         this.rF = new RedisFactory();
@@ -19,6 +20,7 @@ export class UserAuthService extends BaseService {
         this.postClapsByUser = "postClapsByUser";
         this.reportPostsByUser = "reportPostsByUser";
         this.reportPostCommentByUser = "reportPostCommentByUser";
+        this.userNotificationsCount = "userNotificationsCount";
     }
 
     public CheckUser = async (userId: string): Promise<any> => {
@@ -1026,6 +1028,117 @@ export class UserAuthService extends BaseService {
         } finally {
             if (!this._.isNil(session))
                 session.close();
+        }
+    };
+
+    public AddNotification = async (notification: VM.INotifications): Promise<any> => {
+        try {
+            var notificationDetails: any = {
+                toUserId: notification.toUserId,
+                notificationType: notification.type,
+                fromUserId: notification.fromUserId,
+                fromUserName: notification.fromUserName,
+                isRead: false
+            }
+
+            if (notification.type === VM.userNotificationType.POST_CLAPS) {
+                notificationDetails.data = JSON.stringify(notification.postClaps);
+            } else if (notification.type === VM.userNotificationType.POST_COMMENT) {
+                notificationDetails.data = JSON.stringify(notification.postComment);
+            } else if (notification.type === VM.userNotificationType.USER_FOLLOWING) {
+                notificationDetails.data = JSON.stringify(notification.userFollowing);
+            }
+
+            var result = await mdbModels.Notifications.create(notificationDetails);
+
+            await this.rF.ConnectToRedis(this.rF.redisDB.dbUser);
+            await this.rF.redisClient.hincrbyAsync(this.userNotificationsCount, notificationDetails.toUserId, 1);
+
+            return result;
+        } catch (error) {
+            throw error;
+        } finally {
+            this.rF.Disconnect();
+        }
+    };
+
+    public GetNotifications = async (userId: string, from: number, size: number): Promise<any> => {
+        try {
+            await this.rF.ConnectToRedis(this.rF.redisDB.dbUser);
+            await this.rF.redisClient.hsetAsync(this.userNotificationsCount, userId, 0);
+
+            var notifications: any = await mdbModels.Notifications.find({ toUserId: userId })
+                .skip(from)
+                .limit(size)
+                .sort({ createdAt: -1 })
+                .exec();
+
+            if (this._.isNil(notifications)) {
+                return [];
+            } else {
+                notifications = notifications.map(x => {
+                    x = x.toObject();
+                    x.data = JSON.parse(x.data);
+                    return x;
+                });
+
+                return notifications;
+            }
+        } catch (error) {
+            throw error;
+        } finally {
+            this.rF.Disconnect();
+        }
+    };
+    public GetUnReadNotificationsCount = async (userId: string): Promise<any> => {
+        try {
+            await this.rF.ConnectToRedis(this.rF.redisDB.dbUser);
+            var unReadNotificationsCount = await this.rF.redisClient.hgetAsync(this.userNotificationsCount, userId);
+
+            return unReadNotificationsCount;
+        } catch (error) {
+            throw error;
+        } finally {
+            this.rF.Disconnect();
+        }
+    };
+
+    public MarkNotificationsAsRead = async (userId: string, notificationId: number): Promise<any> => {
+        try {
+            var markedNotification = await mdbModels.Notifications.findOneAndUpdate(
+                {
+                    _id: notificationId,
+                    toUserId: userId
+                },
+                {
+                    $set: {
+                        isRead: true
+                    }
+                }, {
+                    "upsert": true,
+                    "new": true
+                }).exec();
+
+            return markedNotification;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    public MarkAllNotificationsAsRead = async (userId: string): Promise<any> => {
+        try {
+            var markedNotifications = await mdbModels.Notifications.update({
+                toUserId: userId
+            }, {
+                    $set: {
+                        "isRead": true
+                    }
+                }, { multi: true, upsert: true }).exec();
+
+            return markedNotifications;
+
+        } catch (error) {
+            throw error;
         }
     };
 }

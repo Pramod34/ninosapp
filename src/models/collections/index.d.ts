@@ -7,12 +7,22 @@ export interface INinosDB {
     Evalution: Model<IEvalution>;
     PostComments: Model<IPostComments>;
     Challenges: Model<IChallenges>;
+    Notifications: Model<INotifications>;
 
 }
 
 export interface INinosReviewDB {
     ReportedPosts: Model<IReportedPosts>;
     ReportedPostComments: Model<IReportedPostComments>;
+}
+
+export interface INotifications extends Document {
+    toUserId: string;
+    notificationType: string;
+    fromUserId: string;
+    fromUserName: string;
+    data: string;
+    isRead: boolean;
 }
 
 //incomplete one

@@ -80,4 +80,31 @@ export declare namespace VM {
         userId: string;
         age: number;
     }
+    var userNotificationType: {
+        POST_COMMENT: string;
+        USER_FOLLOWING: string;
+        POST_CLAPS: string;
+    };
+    interface IPostCommentNotification {
+        postId: string;
+        commentId: string;
+        postTitle: string;
+    }
+    interface IUserFollowingNotification {
+        fromUserId: string;
+        fromUserName: string;
+    }
+    interface IPostClapsNotification {
+        postId: string;
+        postTitle: string;
+    }
+    interface INotifications {
+        fromUserId?: string;
+        fromUserName?: string;
+        toUserId: string;
+        type: string;
+        postComment?: IPostCommentNotification;
+        userFollowing?: IUserFollowingNotification;
+        postClaps?: IPostClapsNotification;
+    }
 }

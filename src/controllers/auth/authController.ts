@@ -887,6 +887,20 @@ export class AuthController extends BaseController {
             if (!this._.isNil(result)) {
                 var updatePostCommentCount = await this.authService.UpdatePostCommentCount(postId, 1);
 
+                var notification = <VM.INotifications>{
+                    postComment: <VM.IPostCommentNotification>{
+                        postId: postId,
+                        postTitle: updatePostCommentCount.title,
+                        commentId: result._id
+                    },
+                    type: VM.userNotificationType.POST_COMMENT,
+                    toUserId: updatePostCommentCount.userId,
+                    fromUserId: user.userId,
+                    fromUserName: user.childName
+                };
+
+                await this.authService.AddNotification(notification);
+
                 if (!this._.isNil(updatePostCommentCount)) {
                     return res.send(200, {
                         success: true,
@@ -1047,7 +1061,20 @@ export class AuthController extends BaseController {
             var clapsCountForPost = await this.authService.GetClapsForPostCount(postId);
 
             if (result) {
-                await this.authService.UpdateClapsCountForPost(postId, 1);
+                var postDetails = await this.authService.UpdateClapsCountForPost(postId, 1);
+
+                var notification = <VM.INotifications>{
+                    postClaps: <VM.IPostClapsNotification>{
+                        postId: postId,
+                        postTitle: postDetails.title
+                    },
+                    type: VM.userNotificationType.POST_CLAPS,
+                    toUserId: postDetails.userId,
+                    fromUserId: user.userId,
+                    fromUserName: user.childName
+                };
+
+                await this.authService.AddNotification(notification);
 
                 return res.send(200, {
                     success: true,
@@ -1347,6 +1374,20 @@ export class AuthController extends BaseController {
             var resp = await this.authService.FollowUser(userId, userIDToFollow);
 
             if (resp) {
+
+                var notification = <VM.INotifications>{
+                    userFollowing: <VM.IUserFollowingNotification>{
+                        fromUserId: user.userId,
+                        fromUserName: user.childName
+                    },
+                    type: VM.userNotificationType.USER_FOLLOWING,
+                    toUserId: userIDToFollow,
+                    fromUserId: user.userId,
+                    fromUserName: user.childName
+                };
+
+                await this.authService.AddNotification(notification);
+
                 return res.send({
                     success: true,
                     message: `User(${userId}) now follows user(${userIDToFollow}).`,
@@ -1401,13 +1442,13 @@ export class AuthController extends BaseController {
             var result = await this.authService.GetFollowing(user.userId);
 
             if (!this._.isNil(result) && result.length > 0) {
-                res.send({
+                return res.send({
                     success: true,
                     message: `Following details retrived successfully`,
                     followingList: result
                 })
             } else {
-                res.send({
+                return res.send({
                     success: false,
                     message: `Failed to retrive following details`
                 })
@@ -1442,6 +1483,122 @@ export class AuthController extends BaseController {
                     success: false,
                     message: `Failed to retrive followers details`
                 })
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
+
+    public GetNotifications = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var user = this.GetUser(req);
+
+            if (this._.isNil(user)) {
+                throw `user logged not in`;
+            }
+
+            var from = Number(req.params.from || 0);
+            var size = Number(req.params.size || 10);
+
+            var result = await this.authService.GetNotifications(user.userId, from, size);
+
+            if (!this._.isNil(result)) {
+                return res.send({
+                    success: true,
+                    message: `Notifications retrived successfully`,
+                    notifications: result
+                })
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to fetch notifications`
+                })
+            }
+
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
+
+    public GetUnreadNotificationsCount = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var userId = this.GetUser(req).userId;
+
+            if (this._.isNil(userId)) {
+                throw `user logged not in`;
+            }
+
+            var notificationsCount = await this.authService.GetUnReadNotificationsCount(userId);
+
+            if (!this._.isNil(notificationsCount)) {
+                return res.send({
+                    success: true,
+                    message: "Fetched the user notifications count.",
+                    notificationsCount: this._.isNil(notificationsCount) ? 0 : Number(notificationsCount)
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: `Failed to unread notification count`
+                })
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
+
+    public MarkNotificationAsRead = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var userId = this.GetUser(req).userId;
+
+            if (this._.isNil(userId)) {
+                throw `user logged not in`;
+            }
+
+            var notificationId = req.params.notificationId;
+
+            if (this._.isNil(notificationId)) {
+                throw `NotificationId not sent`;
+            }
+
+            var result = await this.authService.MarkNotificationsAsRead(userId, notificationId);
+
+            if (!this._.isNil(result)) {
+                return res.send({
+                    success: true,
+                    message: "Marked as read successfully."
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: "Failed to mark as read, Either you are not authorised to read the content or Invalid data sent."
+                });
+            }
+        } catch (error) {
+            this.ErrorResult(error, req, res, next);
+        }
+    };
+
+    public MarkAllNotificationsAsRead = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
+        try {
+            var userId = this.GetUser(req).userId;
+
+            if (this._.isNil(userId)) {
+                throw `user logged not in`;
+            }
+
+            var result = await this.authService.MarkAllNotificationsAsRead(userId);
+
+            if (!this._.isNil(result)) {
+                return res.send({
+                    success: true,
+                    message: "Marked All as read successfully."
+                });
+            } else {
+                return res.send({
+                    success: false,
+                    message: "Failed to mark all as read, Either you are not authorised to read the content or Invalid data sent."
+                });
             }
         } catch (error) {
             this.ErrorResult(error, req, res, next);

@@ -92,4 +92,36 @@ export namespace VM {
         userId: string;
         age: number;
     }
+
+    export var userNotificationType = {
+        POST_COMMENT: "POST_COMMENT",
+        USER_FOLLOWING: "USER_FOLLOWING",
+        POST_CLAPS: "POST_CLAPS"
+    }
+
+    export interface IPostCommentNotification {
+        postId: string;
+        commentId: string;
+        postTitle: string;
+    }
+
+    export interface IUserFollowingNotification {
+        fromUserId: string;
+        fromUserName: string;
+    }
+
+    export interface IPostClapsNotification {
+        postId: string;
+        postTitle: string;
+    }
+
+    export interface INotifications {
+        fromUserId?: string;
+        fromUserName?: string;
+        toUserId: string;
+        type: string;
+        postComment?: IPostCommentNotification;
+        userFollowing?: IUserFollowingNotification;
+        postClaps?: IPostClapsNotification;
+    }
 }

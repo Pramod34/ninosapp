@@ -256,6 +256,39 @@ var evalutionSchema = new mongoose.Schema({
     }
 }, { timestamps: {}, versionKey: false })
 
+var notificationsSchema = new mongoose.Schema({
+    toUserId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    notificationType: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    fromUserId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    fromUserName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    data: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    isRead: {
+        type: Boolean,
+        required: true,
+        default: false
+    }
+}, { timestamps: {}, versionKey: false })
+
 var postCommentsSchema = new mongoose.Schema({
     postId: {
         type: String,
@@ -361,7 +394,8 @@ export const mdbModels: dbTypes.INinosDB = {
     Quizzes: conn.model<dbTypes.IQuizzes>("Quizzes", quizSchema),
     Evalution: conn.model<dbTypes.IEvalution>("Evalution", evalutionSchema),
     PostComments: conn.model<dbTypes.IPostComments>("PostComments", postCommentsSchema),
-    Challenges: conn.model<dbTypes.IChallenges>("Challenges", challengesSchema.index({ title: "text", description: "text", tags: "text" }, { name: "search-challenge-index" }))
+    Challenges: conn.model<dbTypes.IChallenges>("Challenges", challengesSchema.index({ title: "text", description: "text", tags: "text" }, { name: "search-challenge-index" })),
+    Notifications: conn.model<dbTypes.INotifications>("Notifications", notificationsSchema)
 }
 
 export const mdbReviewModels: dbTypes.INinosReviewDB = {
