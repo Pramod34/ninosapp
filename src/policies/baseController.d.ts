@@ -1,3 +1,4 @@
+/// <reference types="lodash" />
 import log4js = require("log4js");
 import _ = require("lodash");
 import dbTypes = require("../models/collections");

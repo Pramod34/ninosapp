@@ -88,7 +88,7 @@ export class UserAuthService extends BaseService {
             this.log.info(`userInfo: ${userId}`);
 
             var key = `${this.userPoints}:${userId}`;
-            var resp = await this.rF.redisClient.hincrbyAsync(key, userId, points);
+            var resp = await this.rF.redisClient.hincrbyAsync(key, "points", points);
 
             var pointsLog = {
                 type: type,
@@ -102,6 +102,8 @@ export class UserAuthService extends BaseService {
             return resp;
         } catch (error) {
             throw error;
+        } finally {
+            this.rF.Disconnect();
         }
     };
 
@@ -112,7 +114,7 @@ export class UserAuthService extends BaseService {
             this.log.info(`userInfo: ${userId}`);
 
             var key = `${this.userPoints}:${userId}`;
-            var resp = await this.rF.redisClient.hincrbyAsync(key, userId, -points);
+            var resp = await this.rF.redisClient.hincrbyAsync(key, "points", -points);
 
             var pointsLog = {
                 type: type,
@@ -205,6 +207,14 @@ export class UserAuthService extends BaseService {
                 userProfile.followingCount = followersAndFollowingCount.followingsCount;
                 userProfile.isFollowing = isFollowing;
 
+                await this.rF.ConnectToRedis(this.rF.redisDB.dbUser);
+
+                var keyUser = `${this.userPoints}:${userId}`;
+
+                var points = await this.rF.redisClient.hgetAsync(keyUser, "points");
+
+                userProfile.userPoints = this._.isNil(points) ? 0 : Number(points);
+
                 if (!this._.isNil(userDetails.city)) {
                     userProfile.city = userDetails.city;
                 }
@@ -212,6 +222,8 @@ export class UserAuthService extends BaseService {
             return userProfile;
         } catch (error) {
             throw error;
+        } finally {
+            this.rF.Disconnect();
         }
     };
 

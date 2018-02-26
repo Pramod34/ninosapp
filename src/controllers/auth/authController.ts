@@ -216,9 +216,9 @@ export class AuthController extends BaseController {
             var result = await this.authService.AddPost(userPost);
 
             if (!this._.isNil(result)) {
-                if (userPost.isChallenge === true) {
+                if (userPost.isChallenge === false) {
 
-                    var pointsResult = await this.authService.AddUserPoints("challenges", user.userId, result._id, VM.userPoints.CHALLENGE_POINTS);
+                    var pointsResult = await this.authService.AddUserPoints("challenges", user.userId, result._doc._id, VM.userPoints.CHALLENGE_POINTS);
 
                     if (this._.isNil(pointsResult)) {
                         console.log(`Added user points successfully`);
