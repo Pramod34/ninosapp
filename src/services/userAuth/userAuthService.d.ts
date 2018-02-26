@@ -8,11 +8,14 @@ export declare class UserAuthService extends BaseService {
     private reportPostsByUser;
     private reportPostCommentByUser;
     private userNotificationsCount;
+    private userPoints;
     constructor();
     CheckUser: (userId: string) => Promise<any>;
     CreateUser: (userInfo: dbTypes.IAuth) => Promise<any>;
     SetUserLastLogin: (userId: string) => Promise<void>;
     AddPost: (userPost: VM.IPost) => Promise<any>;
+    AddUserPoints: (type: string, userId: string, sourceId: string, points: number) => Promise<any>;
+    DeleteUserPoints: (type: string, userId: string, sourceId: string, points: number) => Promise<any>;
     GetPosts: (searchRequest: VM.IPostVM, userId: string) => Promise<any>;
     GetPost: (postId: string) => Promise<any>;
     UpdatePost: (updatePostDetails: VM.IPost, postId: string) => Promise<any>;

@@ -8,6 +8,7 @@ export interface INinosDB {
     PostComments: Model<IPostComments>;
     Challenges: Model<IChallenges>;
     Notifications: Model<INotifications>;
+    PointsLog: Model<IPointsLog>;
 
 }
 
@@ -116,4 +117,11 @@ export interface IReportedPostComments extends Document {
     userId: string;
     userReport: string;
     reportedDate: Date;
+}
+
+export interface IPointsLog extends Document {
+    type: string;
+    sourceId: string;
+    points: number;
+    userId: string;
 }

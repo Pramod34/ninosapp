@@ -93,6 +93,10 @@ export namespace VM {
         age: number;
     }
 
+    export var userPoints = {
+        CHALLENGE_POINTS : 5
+    }
+
     export var userNotificationType = {
         POST_COMMENT: "POST_COMMENT",
         USER_FOLLOWING: "USER_FOLLOWING",
@@ -124,4 +128,6 @@ export namespace VM {
         userFollowing?: IUserFollowingNotification;
         postClaps?: IPostClapsNotification;
     }
+
+
 }

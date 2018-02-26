@@ -13,6 +13,7 @@ export class UserAuthService extends BaseService {
     private reportPostsByUser: string;
     private reportPostCommentByUser: string;
     private userNotificationsCount: string;
+    private userPoints: string;
     constructor() {
         super();
         this.rF = new RedisFactory();
@@ -21,6 +22,7 @@ export class UserAuthService extends BaseService {
         this.reportPostsByUser = "reportPostsByUser";
         this.reportPostCommentByUser = "reportPostCommentByUser";
         this.userNotificationsCount = "userNotificationsCount";
+        this.userPoints = "userPoints";
     }
 
     public CheckUser = async (userId: string): Promise<any> => {
@@ -74,6 +76,54 @@ export class UserAuthService extends BaseService {
             var addPostQuery = await mdbModels.Post.create(userPost);
 
             return addPostQuery;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    public AddUserPoints = async (type: string, userId: string, sourceId: string, points: number): Promise<any> => {
+        try {
+            await this.rF.ConnectToRedis(this.rF.redisDB.dbUser);
+
+            this.log.info(`userInfo: ${userId}`);
+
+            var key = `${this.userPoints}:${userId}`;
+            var resp = await this.rF.redisClient.hincrbyAsync(key, userId, points);
+
+            var pointsLog = {
+                type: type,
+                userId: userId,
+                sourceId: sourceId,
+                points: points
+            }
+
+            await mdbModels.PointsLog.create(pointsLog);
+
+            return resp;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    public DeleteUserPoints = async (type: string, userId: string, sourceId: string, points: number): Promise<any> => {
+        try {
+            await this.rF.ConnectToRedis(this.rF.redisDB.dbUser);
+
+            this.log.info(`userInfo: ${userId}`);
+
+            var key = `${this.userPoints}:${userId}`;
+            var resp = await this.rF.redisClient.hincrbyAsync(key, userId, -points);
+
+            var pointsLog = {
+                type: type,
+                userId: userId,
+                sourceId: sourceId,
+                points: -points
+            }
+
+            await mdbModels.PointsLog.create(pointsLog);
+
+            return resp;
         } catch (error) {
             throw error;
         }

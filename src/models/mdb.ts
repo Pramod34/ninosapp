@@ -289,6 +289,29 @@ var notificationsSchema = new mongoose.Schema({
     }
 }, { timestamps: {}, versionKey: false })
 
+var pointsLogSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    sourceId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    userId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    points: {
+        type: Number,
+        required: false,
+        default: 0
+    }
+}, { timestamps: {}, versionKey: false })
+
 var postCommentsSchema = new mongoose.Schema({
     postId: {
         type: String,
@@ -395,7 +418,8 @@ export const mdbModels: dbTypes.INinosDB = {
     Evalution: conn.model<dbTypes.IEvalution>("Evalution", evalutionSchema),
     PostComments: conn.model<dbTypes.IPostComments>("PostComments", postCommentsSchema),
     Challenges: conn.model<dbTypes.IChallenges>("Challenges", challengesSchema.index({ title: "text", description: "text", tags: "text" }, { name: "search-challenge-index" })),
-    Notifications: conn.model<dbTypes.INotifications>("Notifications", notificationsSchema)
+    Notifications: conn.model<dbTypes.INotifications>("Notifications", notificationsSchema),
+    PointsLog: conn.model<dbTypes.IPointsLog>("PointsLog", pointsLogSchema)
 }
 
 export const mdbReviewModels: dbTypes.INinosReviewDB = {

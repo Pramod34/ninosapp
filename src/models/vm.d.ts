@@ -80,6 +80,9 @@ export declare namespace VM {
         userId: string;
         age: number;
     }
+    var userPoints: {
+        CHALLENGE_POINTS: number;
+    };
     var userNotificationType: {
         POST_COMMENT: string;
         USER_FOLLOWING: string;
