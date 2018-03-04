@@ -906,19 +906,24 @@ export class AuthController extends BaseController {
             if (!this._.isNil(result)) {
                 var updatePostCommentCount = await this.authService.UpdatePostCommentCount(postId, 1);
 
-                var notification = <VM.INotifications>{
-                    postComment: <VM.IPostCommentNotification>{
-                        postId: postId,
-                        postTitle: updatePostCommentCount.title,
-                        commentId: result._id
-                    },
-                    type: VM.userNotificationType.POST_COMMENT,
-                    toUserId: updatePostCommentCount.userId,
-                    fromUserId: user.userId,
-                    fromUserName: user.childName
-                };
+                var postAuthorId = updatePostCommentCount.userId;
 
-                await this.authService.AddNotification(notification);
+                if (postAuthorId !== user.userId) {
+
+                    var notification = <VM.INotifications>{
+                        postComment: <VM.IPostCommentNotification>{
+                            postId: postId,
+                            postTitle: updatePostCommentCount.title,
+                            commentId: result._id
+                        },
+                        type: VM.userNotificationType.POST_COMMENT,
+                        toUserId: updatePostCommentCount.userId,
+                        fromUserId: user.userId,
+                        fromUserName: user.childName
+                    };
+
+                    await this.authService.AddNotification(notification);
+                }
 
                 if (!this._.isNil(updatePostCommentCount)) {
                     return res.send(200, {
@@ -1082,18 +1087,23 @@ export class AuthController extends BaseController {
             if (result) {
                 var postDetails = await this.authService.UpdateClapsCountForPost(postId, 1);
 
-                var notification = <VM.INotifications>{
-                    postClaps: <VM.IPostClapsNotification>{
-                        postId: postId,
-                        postTitle: postDetails.title
-                    },
-                    type: VM.userNotificationType.POST_CLAPS,
-                    toUserId: postDetails.userId,
-                    fromUserId: user.userId,
-                    fromUserName: user.childName
-                };
+                var postAuthorId = postDetails.userId;
 
-                await this.authService.AddNotification(notification);
+                if (postAuthorId !== user.userId) {
+
+                    var notification = <VM.INotifications>{
+                        postClaps: <VM.IPostClapsNotification>{
+                            postId: postId,
+                            postTitle: postDetails.title
+                        },
+                        type: VM.userNotificationType.POST_CLAPS,
+                        toUserId: postDetails.userId,
+                        fromUserId: user.userId,
+                        fromUserName: user.childName
+                    };
+
+                    await this.authService.AddNotification(notification);
+                }
 
                 return res.send(200, {
                     success: true,

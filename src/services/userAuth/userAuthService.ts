@@ -288,8 +288,9 @@ export class UserAuthService extends BaseService {
     public UpdateUserName = async (userId: string, childName: string): Promise<any> => {
         let session;
         try {
-            await mdbModels.Post.update({ userId: userId }, { userName: childName }, { upsert: true }).exec();
-            await mdbModels.PostComments.update({ userId: userId }, { userName: childName }, { upsert: true }).exec();
+            await mdbModels.Post.update({ userId: userId }, { userName: childName }, { multi: true, upsert: true }).exec();
+            await mdbModels.PostComments.update({ userId: userId }, { userName: childName }, { upsert: true, multi: true }).exec();
+            await mdbModels.Notifications.update({ fromUserId: userId }, { fromUserName: childName }, { upsert: true, multi: true }).exec();
 
             var params = {
                 userId: userId,
