@@ -835,6 +835,13 @@ export class AuthController extends BaseController {
     public DeletePost = async (req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> => {
         try {
             var postId = req.params.postId;
+            var isChallenge = req.params.isChallenge;
+
+            if (this._.isNil(isChallenge)) {
+                isChallenge = false;
+            } else {
+                isChallenge = true;
+            }
 
             var user = this.GetUser(req);
 
@@ -859,6 +866,17 @@ export class AuthController extends BaseController {
             var result = await this.authService.DeletePost(postId, user.userId);
 
             if (!this._.isNil(result)) {
+
+                if (isChallenge === true) {
+
+                    var pointsResult = await this.authService.DeleteUserPoints("challenges", user.userId, result._doc._id, VM.userPoints.CHALLENGE_POINTS);
+
+                    if (this._.isNil(pointsResult)) {
+                        console.log(`Deleted user points successfully`);
+                    } else {
+                        console.log(`Failed to delete user points`);
+                    }
+                }
                 return res.send(200, {
                     success: true,
                     message: `Post deleted successfully`

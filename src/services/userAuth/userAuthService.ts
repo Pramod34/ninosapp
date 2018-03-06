@@ -345,7 +345,11 @@ export class UserAuthService extends BaseService {
 
             var completedQuizIds = await this.GetUserCompletedQuizIds(searchRequest.userId, searchRequest.from, searchRequest.size);
 
-            var queryResult = await mdbModels.Quizzes.find({ agegroup: ageGroup, _id: { $nin: completedQuizIds } }).select("title duration agegroup").exec();
+            var queryResult = await mdbModels.Quizzes.find({ agegroup: ageGroup, _id: { $nin: completedQuizIds } })
+                .select("title duration agegroup")
+                .skip(searchRequest.from)
+                .limit(searchRequest.size)
+                .exec();
 
             return queryResult;
         } catch (error) {
@@ -367,7 +371,10 @@ export class UserAuthService extends BaseService {
 
             var completedQuizIds = await this.GetUserCompletedQuizIds(searchRequest.userId, searchRequest.from, searchRequest.size);
 
-            var queryResult = await mdbModels.Quizzes.find({ agegroup: ageGroup, _id: { $in: completedQuizIds } }).select("title duration agegroup").exec();
+            var queryResult = await mdbModels.Quizzes.find({ agegroup: ageGroup, _id: { $in: completedQuizIds } }).select("title duration agegroup")
+                // .skip(searchRequest.from)
+                // .limit(searchRequest.size)
+                .exec();
 
             return queryResult;
         } catch (error) {
@@ -379,8 +386,6 @@ export class UserAuthService extends BaseService {
         try {
             var query = await mdbModels.Evalution.find({ userId: userId })
                 .select("quizId")
-                .skip(from)
-                .limit(size)
                 .exec();
 
             var quizIds: string[] = [];
@@ -516,8 +521,10 @@ export class UserAuthService extends BaseService {
             var score = 0;
 
             evaluateResultDetails.mcqSolution.forEach(x => {
-                if (x.status === "correct") {
-                    score = score + 2;
+                if (!this._.isNil(x)) {
+                    if (x.status === "correct") {
+                        score = score + 2;
+                    }
                 }
             });
 
