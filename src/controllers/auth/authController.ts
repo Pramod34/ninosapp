@@ -1103,7 +1103,7 @@ export class AuthController extends BaseController {
             var clapsCountForPost = await this.authService.GetClapsForPostCount(postId);
 
             if (result) {
-                var postDetails = await this.authService.UpdateClapsCountForPost(postId, 1);
+                var postDetails = await this.authService.UpdateClapsCountForPost(postId, Number(clapsCountForPost));
 
                 var postAuthorId = postDetails.userId;
 
@@ -1126,7 +1126,7 @@ export class AuthController extends BaseController {
                 return res.send(200, {
                     success: true,
                     message: `Added claps for post`,
-                    clapsCount: clapsCountForPost
+                    clapsCount: Number(clapsCountForPost) < 0 ? 0 : clapsCountForPost
                 })
             } else {
                 return res.send({
@@ -1157,12 +1157,12 @@ export class AuthController extends BaseController {
             var clapsCountForPost = await this.authService.GetClapsForPostCount(postId);
 
             if (!this._.isNil(result)) {
-                await this.authService.UpdateClapsCountForPost(postId, -1);
+                await this.authService.UpdateClapsCountForPost(postId, Number(clapsCountForPost));
 
                 return res.send(200, {
                     success: true,
                     message: `Removed user claps for post`,
-                    clapsCount: clapsCountForPost
+                    clapsCount: clapsCountForPost < 0 ? 0 : clapsCountForPost
                 })
             } else {
                 return res.send({

@@ -372,8 +372,8 @@ export class UserAuthService extends BaseService {
             var completedQuizIds = await this.GetUserCompletedQuizIds(searchRequest.userId, searchRequest.from, searchRequest.size);
 
             var queryResult = await mdbModels.Quizzes.find({ agegroup: ageGroup, _id: { $in: completedQuizIds } }).select("title duration agegroup")
-                // .skip(searchRequest.from)
-                // .limit(searchRequest.size)
+                .skip(searchRequest.from)
+                .limit(searchRequest.size)
                 .exec();
 
             return queryResult;
@@ -604,7 +604,7 @@ export class UserAuthService extends BaseService {
 
     public UpdateClapsCountForPost = async (postId: string, count: number): Promise<any> => {
         try {
-            var postCommentCount = await mdbModels.Post.findOneAndUpdate({ _id: postId }, { $inc: { totalClapsCount: count } }).exec();
+            var postCommentCount = await mdbModels.Post.findOneAndUpdate({ _id: postId }, { "totalClapsCount": count }, { upsert: true, "new": true }).exec();
 
             return postCommentCount;
         } catch (error) {
