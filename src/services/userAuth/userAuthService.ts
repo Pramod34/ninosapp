@@ -133,7 +133,7 @@ export class UserAuthService extends BaseService {
 
     public GetPosts = async (searchRequest: VM.IPostVM, userId: string): Promise<any> => {
         try {
-            var criteria: any = { userId: { $exists: true } };
+            var criteria: any = { userId: { $exists: true }, isVideo: { $exists: true }, type: { $exists: true } };
 
             if (!this._.isNil(searchRequest.type)) {
                 criteria.type = searchRequest.type
