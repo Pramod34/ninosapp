@@ -189,7 +189,7 @@ export class UserAuthService extends BaseService {
             var userProfile: any = {};
             var userDetails = await mdbModels.Auth.findOne({ userId: userId }).select("childName city aboutus").exec();
             if (!this._.isNil(userDetails)) {
-                var usersPostCount = await mdbModels.Post.count({ userId: userId }).exec();
+                var usersPostCount = await mdbModels.Post.count({ userId: userId, isVideo: { $exists: true }, type: { $exists: true } }).exec();
 
                 var isFollowing = false;
 
