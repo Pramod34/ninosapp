@@ -3,6 +3,7 @@ var tsc = require("gulp-typescript");
 var sourcemaps = require("gulp-sourcemaps");
 var shell = require("gulp-shell");
 var tslint = require("gulp-tslint");
+var merge = require("merge-stream");
 var del = require("del");
 var glob = require("glob");
 
@@ -58,4 +59,31 @@ gulp.task("default", ["run"]);
 
 gulp.task("watch", function() {
   gulp.watch("src/**/*.ts", ["build"]);
+});
+
+gulp.task("deploy-with-config", ["build"], function () {
+  del.sync("dist");
+  var srcFiles = gulp.src(["src/**/*.js", "package.json", "startup.json"])
+      .pipe(gulp.dest("dist"));
+
+  var config = gulp.src("config/*.*", {
+          base: "./"
+      })
+      .pipe(gulp.dest("dist"));
+
+  var swagger = gulp.src("./api/swagger/swagger.yaml")
+      .pipe(gulp.dest("dist/api/swagger"));
+
+  return merge(srcFiles, config, swagger);
+});
+
+gulp.task("deploy-without-config", ["build"], function () {
+  del.sync("dist");
+  var srcFiles = gulp.src(["src/**/*.js", "package.json", "startup.json"])
+      .pipe(gulp.dest("dist"));
+
+  var swagger = gulp.src("./api/swagger/swagger.yaml")
+      .pipe(gulp.dest("dist/api/swagger"));
+
+  return merge(srcFiles, swagger);
 });

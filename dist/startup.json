@@ -1,0 +1,14 @@
+{
+    "apps": [{
+        "name": "ninos-api",
+        "script": "app.js",
+        "instances": "max",
+        "exec_mode": "cluster",
+        "error_file": "/dev/null",
+        "out_file": "/dev/null",
+        "source_map_support": true,
+        "env": {
+            "NODE_CONFIG_ENV": "development"
+        }
+    }]
+}
