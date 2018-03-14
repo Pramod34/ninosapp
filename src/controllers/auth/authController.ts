@@ -216,16 +216,6 @@ export class AuthController extends BaseController {
             var result = await this.authService.AddPost(userPost);
 
             if (!this._.isNil(result)) {
-                if (userPost.isChallenge === false) {
-
-                    var pointsResult = await this.authService.AddUserPoints("challenges", user.userId, result._doc._id, VM.userPoints.CHALLENGE_POINTS);
-
-                    if (this._.isNil(pointsResult)) {
-                        console.log(`Added user points successfully`);
-                    } else {
-                        console.log(`Failed to update user points`);
-                    }
-                }
                 return res.send(200, {
                     success: true,
                     message: `Post added successfully`,
@@ -375,6 +365,18 @@ export class AuthController extends BaseController {
             var result = await this.authService.UpdatePost(userUpdatePost, postId);
 
             if (!this._.isNil(result)) {
+                if (result._doc.isChallenge === true) {
+
+                    var pointsResult = await this.authService.AddUserPoints("challenges", user.userId, result._doc._id, VM.userPoints.CHALLENGE_POINTS);
+
+                    if (this._.isNil(pointsResult)) {
+                        console.log(`Added user points successfully`);
+                    }
+                    else {
+                        console.log(`Failed to update user points`);
+                    }
+                }
+
                 return res.send(200, {
                     success: true,
                     message: `Post ${postId} updated successfully`,
@@ -867,7 +869,7 @@ export class AuthController extends BaseController {
 
             if (!this._.isNil(result)) {
 
-                if (isChallenge === true) {
+                if (result._doc.isChallenge === true) {
 
                     var pointsResult = await this.authService.DeleteUserPoints("challenges", user.userId, result._doc._id, VM.userPoints.CHALLENGE_POINTS);
 
